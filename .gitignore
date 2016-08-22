@@ -1,0 +1,11 @@
+*.so
+*.dylib
+*.dll
+*.jar
+
+bin/*
+res/*
+
+.settings/*
+.project
+.classpath
