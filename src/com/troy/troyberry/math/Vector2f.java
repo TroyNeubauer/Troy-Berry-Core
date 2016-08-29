@@ -20,6 +20,23 @@ public final class Vector2f {
 		this.x = position.x;
 		this.y = position.y;
 	}
+	
+	public static double getAngleFromPoint(Vector2f firstPoint, Vector2f secondPoint) {
+
+	    if((secondPoint.x > firstPoint.x)) {//above 0 to 180 degrees
+
+	        return (Math.atan2((secondPoint.x - firstPoint.x), (firstPoint.y - secondPoint.y)) * 180 / Math.PI);
+
+	    }
+	    else if((secondPoint.x < firstPoint.x)) {//above 180 degrees to 360/0
+
+	        return 360 - (Math.atan2((firstPoint.x - secondPoint.x), (firstPoint.y - secondPoint.y)) * 180 / Math.PI);
+
+	    }//End if((secondPoint.x > firstPoint.x) && (secondPoint.y <= firstPoint.y))
+
+	    return Math.atan2(0 ,0);
+
+	}
 
 	public float lengthSquared() {
 		return this.x * this.x + this.y * this.y;

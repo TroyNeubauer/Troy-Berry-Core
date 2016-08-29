@@ -2,6 +2,10 @@ package com.troy.troyberry.math;
 
 public class Maths {
 	
+	public static int millasecondsToUpdates(int ms, int ups){
+		return Math.round(((float)ms / 1000f) * (float)ups);
+	}
+	
 	public static int floor(float f) {
 		return (int) f;
 	}
@@ -12,6 +16,10 @@ public class Maths {
 	
 	public static int round(float f) {
 		return (int) (f + 0.5f);
+	}
+	
+	public static int round(double d) {
+		return (int) Math.round(d);
 	}
 
 	public static Vector2f getRowAndColom(final int width, final int value) {
@@ -64,6 +72,10 @@ public class Maths {
 
 	public static boolean rangeIntersect(float min0, float max0, float min1, float max1) {
 		return Math.max(min0, max0) >= Math.min(min1, max1) && Math.min(min0, max0) <= Math.max(min1, max1);
+	}
+	
+	public static boolean intersect(int min, int max, int point) {
+		return point >= min && point <= max;
 	}
 
 	public static float average(float... input) {
