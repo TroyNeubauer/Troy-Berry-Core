@@ -1,8 +1,12 @@
 package com.troy.troyberry.math;
 
+import java.nio.*;
 import java.util.*;
 
 public final class Vector3f {
+
+	public static final int ELEMENTS = 3;
+	public static final int BYTES = ELEMENTS * Float.BYTES, BITS = ELEMENTS * Float.SIZE;
 
 	public float x, y, z;
 	private static Random random = new Random();
@@ -23,6 +27,12 @@ public final class Vector3f {
 
 	public Vector3f(Vector2f vec) {
 		this(vec.x, vec.y, 0);
+	}
+
+	public Vector3f(Vector4f vec) {
+		this.x = vec.x;
+		this.y = vec.y;
+		this.z = vec.z;
 	}
 
 	public final float lengthSquared() {
@@ -54,8 +64,8 @@ public final class Vector3f {
 	public static Vector3f negate(Vector3f vec) {
 		return new Vector3f(-vec.x, -vec.y, -vec.z);
 	}
-	
-	public Vector3f zero(){
+
+	public Vector3f zero() {
 		this.x = 0f;
 		this.y = 0f;
 		this.z = 0f;
@@ -143,8 +153,116 @@ public final class Vector3f {
 	}
 
 	public static Vector3f randomVector(float scale) {
-		Vector3f vec = new Vector3f(1 - (random.nextFloat() * 2), 1 - (random.nextFloat() * 2), 1 - (random.nextFloat() * 2))
-			.scale(scale);
+		Vector3f vec = new Vector3f(1 - (random.nextFloat() * 2), 1 - (random.nextFloat() * 2), 1 - (random.nextFloat() * 2)).scale(scale);
 		return vec;
+	}
+
+	public Vector3f setLength(float length) {
+		this.normalised();
+		this.scale(length);
+		return this;
+	}
+
+	public void set(float x, float y, float z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+
+	public void modulus(float x, float y, float z) {
+		this.x %= x;
+		this.y %= y;
+		this.z %= z;
+	}
+
+	public void set(Vector3f vec) {
+		this.x = vec.x;
+		this.y = vec.y;
+		this.z = vec.z;
+	}
+
+	public Vector3f translate(float x, float y, float z) {
+		this.x += x;
+		this.y += y;
+		this.z += z;
+		return this;
+	}
+
+	public static Vector3f add(Vector3f left, Vector3f right, Vector3f dest) {
+		if (dest == null) {
+			return new Vector3f(left.x + right.x, left.y + right.y, left.z + right.z);
+		}
+		dest.set(left.x + right.x, left.y + right.y, left.z + right.z);
+		return dest;
+	}
+
+	public static Vector3f sub(Vector3f left, Vector3f right, Vector3f dest) {
+		if (dest == null) {
+			return new Vector3f(left.x - right.x, left.y - right.y, left.z - right.z);
+		}
+		dest.set(left.x - right.x, left.y - right.y, left.z - right.z);
+		return dest;
+	}
+
+	public static Vector3f cross(Vector3f left, Vector3f right, Vector3f dest) {
+		if (dest == null) {
+			dest = new Vector3f();
+		}
+		dest.set(left.y * right.z - left.z * right.y, right.x * left.z - right.z * left.x, left.x * right.y - left.y * right.x);
+
+		return dest;
+	}
+
+	public static float dot(Vector3f left, Vector3f right) {
+		return left.x * right.x + left.y * right.y + left.z * right.z;
+	}
+
+	public static float angle(Vector3f a, Vector3f b) {
+		float dls = dot(a, b) / (a.length() * b.length());
+		if (dls < -1.0F) {
+			dls = -1.0F;
+		} else if (dls > 1.0F) {
+			dls = 1.0F;
+		}
+		return (float) Math.acos(dls);
+	}
+
+	public Vector3f load(FloatBuffer buf) {
+		this.x = buf.get();
+		this.y = buf.get();
+		this.z = buf.get();
+		return this;
+	}
+
+	public Vector3f store(FloatBuffer buf) {
+		buf.put(this.x);
+		buf.put(this.y);
+		buf.put(this.z);
+
+		return this;
+	}
+
+	public final float getX() {
+		return this.x;
+	}
+
+	public final float getY() {
+		return this.y;
+	}
+
+	public final void setX(float x) {
+		this.x = x;
+	}
+
+	public final void setY(float y) {
+		this.y = y;
+	}
+
+	public void setZ(float z) {
+		this.z = z;
+	}
+
+	public float getZ() {
+		return this.z;
 	}
 }

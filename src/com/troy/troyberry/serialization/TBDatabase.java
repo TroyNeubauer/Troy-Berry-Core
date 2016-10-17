@@ -7,7 +7,7 @@ import java.util.*;
 
 public class TBDatabase extends TBBase {
 
-	public static final byte[] HEADER = "LD36".getBytes();
+	public static final byte[] HEADER = "TBDB".getBytes();
 	public static final short VERSION = 0x0100;
 	public static final byte CONTAINER_TYPE = ContainerType.DATABASE;
 	private short objectCount;
@@ -91,16 +91,12 @@ public class TBDatabase extends TBBase {
 		return null;
 	}
 
-	public static TBDatabase DeserializeFromFile(File saveDirectory) {
+	public static TBDatabase DeserializeFromFile(File saveDirectory) throws IOException {
 		byte[] buffer = null;
-		try {
-			BufferedInputStream stream = new BufferedInputStream(new FileInputStream(saveDirectory));
-			buffer = new byte[stream.available()];
-			stream.read(buffer);
-			stream.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		BufferedInputStream stream = new BufferedInputStream(new FileInputStream(saveDirectory));
+		buffer = new byte[stream.available()];
+		stream.read(buffer);
+		stream.close();
 
 		return Deserialize(buffer);
 	}
@@ -109,7 +105,7 @@ public class TBDatabase extends TBBase {
 		byte[] data = new byte[getSize()];
 		getBytes(data, 0);
 		try {
-			if (file.exists()){
+			if (file.exists()) {
 				file.delete();
 			}
 
@@ -117,11 +113,11 @@ public class TBDatabase extends TBBase {
 			stream.write(data);
 			stream.close();
 			System.out.print("saving file: " + file.getName());
-			if (file.exists()) 
+			if (file.exists())
 				System.out.println(" success!");
 			else
 				System.err.println(" failed!");
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
