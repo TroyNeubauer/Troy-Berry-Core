@@ -367,27 +367,27 @@ public class Matrix4f {
 		if (dest == null) {
 			dest = new Matrix4f();
 		}
-		float c = (float) Math.cos(angle);
-		float s = (float) Math.sin(angle);
-		float oneminusc = 1.0F - c;
+		float cos = (float) Math.cos(angle);
+		float sin = (float) Math.sin(angle);
+		float oneMinusCos = 1.0F - cos;
 		float xy = axis.x * axis.y;
 		float yz = axis.y * axis.z;
 		float xz = axis.x * axis.z;
-		float xs = axis.x * s;
-		float ys = axis.y * s;
-		float zs = axis.z * s;
+		float xsin = axis.x * sin;
+		float ysin = axis.y * sin;
+		float zsin = axis.z * sin;
 
-		float f00 = axis.x * axis.x * oneminusc + c;
-		float f01 = xy * oneminusc + zs;
-		float f02 = xz * oneminusc - ys;
+		float f00 = axis.x * axis.x * oneMinusCos + cos;
+		float f01 = xy * oneMinusCos + zsin;
+		float f02 = xz * oneMinusCos - ysin;
 
-		float f10 = xy * oneminusc - zs;
-		float f11 = axis.y * axis.y * oneminusc + c;
-		float f12 = yz * oneminusc + xs;
+		float f10 = xy * oneMinusCos - zsin;
+		float f11 = axis.y * axis.y * oneMinusCos + cos;
+		float f12 = yz * oneMinusCos + xsin;
 
-		float f20 = xz * oneminusc + ys;
-		float f21 = yz * oneminusc - xs;
-		float f22 = axis.z * axis.z * oneminusc + c;
+		float f20 = xz * oneMinusCos + ysin;
+		float f21 = yz * oneMinusCos - xsin;
+		float f22 = axis.z * axis.z * oneMinusCos + cos;
 
 		float t00 = src.m00 * f00 + src.m10 * f01 + src.m20 * f02;
 		float t01 = src.m01 * f00 + src.m11 * f01 + src.m21 * f02;

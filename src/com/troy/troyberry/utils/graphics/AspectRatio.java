@@ -1,4 +1,4 @@
-package com.troy.troyberry.utils;
+package com.troy.troyberry.utils.graphics;
 
 public enum AspectRatio {
 	SIZE16X9(16, 9), SIZE16X10(16, 10), SIZE4X3(4, 3), SIZE1X1(1, 1), SIZE5X4(5, 4), SIZE21X9(21, 9), SIZE3X2(3, 2), UNSUPPORTED(-1, -1);

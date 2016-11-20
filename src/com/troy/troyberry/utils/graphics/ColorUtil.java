@@ -1,4 +1,4 @@
-package com.troy.troyberry.utils;
+package com.troy.troyberry.utils.graphics;
 
 import java.awt.*;
 import com.troy.troyberry.math.*;
@@ -11,7 +11,7 @@ public class ColorUtil {
 		Color.gray, Color.gray, Color.LIGHT_GRAY, Color.gray, Color.orange, Color.orange };
 
 	private ColorUtil() {
-		Maths.randRange(1, 1);
+
 	}
 
 	public static Color randomPlanetColor(int variability) {
@@ -35,6 +35,14 @@ public class ColorUtil {
 		double g = Maths.lerp(colorA.getGreen(), colorB.getGreen(), factor);
 		double b = Maths.lerp(colorA.getBlue(), colorB.getBlue(), factor);
 		return new Color(Maths.round(r), Maths.round(g), Maths.round(b));
+	}
+
+	public static int divide(int color, double factor) {
+		int a = (color & 0xff000000) >> 24;
+		int r = (color & 0xff0000) >> 16;
+		int g = (color & 0xff00) >> 8;
+		int b = (color & 0xff);
+		return (Maths.round(a / factor) << 24) | (Maths.round(r / factor) << 16) | (Maths.round(g / factor) << 8) | (Maths.round(b / factor) << 0);
 	}
 
 }

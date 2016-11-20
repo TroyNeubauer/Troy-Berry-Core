@@ -1,8 +1,10 @@
-package com.troy.troyberry.utils;
+package com.troy.troyberry.utils.general;
 
 import java.io.*;
 import java.text.*;
 import java.util.*;
+
+import com.troy.troyberry.utils.*;
 
 /** Represents a crash report in case that happens **/
 public class CrashReport {
@@ -28,31 +30,36 @@ public class CrashReport {
 		sb.append("Java version " + System.getProperty("java.version") + ", " + System.getProperty("java.vendor") + "\n");
 
 		sb.append("Operating system " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version "
-			+ System.getProperty("os.version") + "\n");
+				+ System.getProperty("os.version") + "\n");
 
 		sb.append("Java VM Version " + System.getProperty("java.vm.name") + " (" + System.getProperty("java.vm.info") + "), "
-			+ System.getProperty("java.vm.vendor") + "\n");
+				+ System.getProperty("java.vm.vendor") + "\n");
 
 		Runtime runtime = Runtime.getRuntime();
 		long maxMemory = runtime.maxMemory();
 		long totalMemory = runtime.totalMemory();
 		long freeMemory = runtime.freeMemory();
-		long maxMemoryMB = maxMemory / 1024L / 1024L;
+		double maxMemoryMB = (double) maxMemory / 1024.0 / 1024.0 / 1024.0;
 		long totalMemoryMB = totalMemory / 1024L / 1024L;
 		long freeMemoryMB = freeMemory / 1024L / 1024L;
 
 		sb.append("Memory " + freeMemory + " bytes (" + freeMemoryMB + " MB) / " + totalMemory + " bytes (" + totalMemoryMB + " MB) up to "
-			+ maxMemory + " bytes (" + maxMemoryMB + " MB)");
+				+ maxMemory + " bytes (" + StringFormatter.clip(maxMemoryMB, 2) + " GB)");
 
 		this.info = sb.toString();
 	}
 
-	/** @return The entire report containing time, Java version details, memory details, a description, and the cause and stack trace **/
+	/**
+	 * @return The entire report containing time, Java version details, memory
+	 *         details, a description, and the cause and stack trace
+	 **/
 	public String getCompleteReport() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("---- The Dungeon Looter Crash Report ----\n\n");
+		sb.append("---- " + VersionManager.getCurentVersion().getName() + " Crash Report ----\n\n");
 		sb.append("Time: ");
-		sb.append((new SimpleDateFormat()).format(new Date()) + "\n\n");
+		sb.append((new SimpleDateFormat()).format(new Date()) + "\n");
+		sb.append("Game: " + VersionManager.getCurentVersion().getName() + "\nVersion: "
+				+ VersionManager.getCurentVersion().getStringVersion() + "\n\n");
 		sb.append("System Info:\n");
 		sb.append(info + "\n\n");
 		sb.append("Description: ");
@@ -62,7 +69,9 @@ public class CrashReport {
 		return sb.toString();
 	}
 
-	/** @return The Cause or stack trace **/
+	/**
+	 * @return The Cause or stack trace
+	 **/
 	public String getCauseStackTraceOrString() {
 		StringWriter stringwriter = null;
 		PrintWriter printwriter = null;
@@ -98,7 +107,9 @@ public class CrashReport {
 		return s;
 	}
 
-	/** @return The throwable responsible for the crash **/
+	/**
+	 * @return The throwable responsible for the crash
+	 **/
 	public Throwable getCrashCause() {
 		return this.cause;
 	}

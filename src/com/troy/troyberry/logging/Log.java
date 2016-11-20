@@ -16,7 +16,7 @@ public class Log {
 	 */
 
 	public static void info(String message) {
-		String timeStamp = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss").format(new Date());
+		String timeStamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
 		long millis = System.currentTimeMillis() % 1000;
 		System.out.println(timeStamp + "." + millis + ": [Info] " + message);
 	}
@@ -35,7 +35,7 @@ public class Log {
 	 */
 	
 	public static void error(String message) {
-		String timeStamp = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss").format(new Date());
+		String timeStamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
 		long millis = System.currentTimeMillis() % 1000;
 		System.err.println(timeStamp + "." + millis + ": [ERROR] " + message);
 	}
@@ -48,14 +48,32 @@ public class Log {
 		error(message.toString());
 	}
 	
+	/** Prints an error message
+	 * @param message this parameter message will be printed to the System.err 
+	 */
+	
+	public static void fatal(String message) {
+		String timeStamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
+		long millis = System.currentTimeMillis() % 1000;
+		System.err.println(timeStamp + "." + millis + ": [FATAL ERROR] " + message);
+	}
+	
+	/** Prints an error message
+	 * @param message this parameter message will be printed to the System.err 
+	 */
+	
+	public static void fatal(Object message) {
+		fatal(message.toString());
+	}
+	
 	/** Prints a warning message
 	 * @param message this parameter message will be printed to the System.err 
 	 */
 
 	public static void warning(String message) {
-		String timeStamp = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss").format(new Date());
+		String timeStamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
 		long millis = System.currentTimeMillis() % 1000;
-		System.err.println(timeStamp + "." + millis + ": [WARNING] " + message);
+		System.out.println(timeStamp + "." + millis + ": [WARNING] " + message);
 	}
 	
 	/** Prints a warning message

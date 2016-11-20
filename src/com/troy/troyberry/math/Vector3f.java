@@ -265,4 +265,12 @@ public final class Vector3f {
 	public float getZ() {
 		return this.z;
 	}
+
+	public String clip(int decimalPoints) {
+		decimalPoints += 1;
+		String x = this.x + "", y = this.y + "", z = this.z + "";
+
+		return "(" + x.substring(0, x.lastIndexOf(".") + decimalPoints) + ", " + y.substring(0, y.lastIndexOf(".") + decimalPoints) + ", "
+			+ z.substring(0, z.lastIndexOf(".") + decimalPoints) + ")";
+	}
 }

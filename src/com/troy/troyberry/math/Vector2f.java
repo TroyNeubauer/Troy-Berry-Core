@@ -35,6 +35,11 @@ public final class Vector2f {
 		this.y = vec.y;
 		return this;
 	}
+	
+	public static Vector2f lerp(Vector2f left, Vector2f right, float factor) {
+		factor = Maths.clamp(0.0f, 1.0f, factor);
+		return new Vector2f(Maths.lerp(left.x, right.x, factor), Maths.lerp(left.y, right.y, factor));
+	}
 
 	public static double getAngleFromPoint(Vector2f firstPoint, Vector2f secondPoint) {
 
@@ -58,6 +63,13 @@ public final class Vector2f {
 
 	public final float length() {
 		return (float) Math.sqrt(lengthSquared());
+	}
+	
+	public static Vector2f translate(Vector2f vec, Vector2f toTranslate){
+		Vector2f result = new Vector2f();
+		result.x = vec.x + toTranslate.x;
+		result.y = vec.y + toTranslate.y;
+		return result;
 	}
 
 	public Vector2f translate(Vector2f vec) {
@@ -126,14 +138,13 @@ public final class Vector2f {
 		return this;
 	}
 
-	public Vector2f scale(final float scale) {
+	public Vector2f scale(float scale) {
 		this.x *= scale;
 		this.y *= scale;
-
 		return this;
 	}
 
-	public Vector2f divideScale(final float scale) {
+	public Vector2f divideScale(float scale) {
 		this.x /= scale;
 		this.y /= scale;
 		return this;
@@ -191,9 +202,10 @@ public final class Vector2f {
 		return new Vector2f(((1 - (random.nextFloat() * 2)) * scale), ((1 - (random.nextFloat() * 2)) * scale));
 	}
 
-	public void setLength(float length) {
+	public Vector2f setLength(float length) {
 		this.normalised();
 		this.scale(length);
+		return this;
 	}
 
 	public Vector2f zero() {
@@ -202,41 +214,16 @@ public final class Vector2f {
 		return this;
 	}
 
-	public void set(float x, float y) {
+	public Vector2f set(float x, float y) {
 		this.x = x;
 		this.y = y;
+		return this;
 	}
 
 	public Vector2f translate(float x, float y) {
 		this.x += x;
 		this.y += y;
 		return this;
-	}
-
-	public static float angle(Vector2f a, Vector2f b) {
-		float dls = dot(a, b) / (a.length() * b.length());
-		if (dls < -1.0F) {
-			dls = -1.0F;
-		} else if (dls > 1.0F) {
-			dls = 1.0F;
-		}
-		return (float) Math.acos(dls);
-	}
-
-	public static Vector2f add(Vector2f left, Vector2f right, Vector2f dest) {
-		if (dest == null) {
-			return new Vector2f(left.x + right.x, left.y + right.y);
-		}
-		dest.set(left.x + right.x, left.y + right.y);
-		return dest;
-	}
-
-	public static Vector2f sub(Vector2f left, Vector2f right, Vector2f dest) {
-		if (dest == null) {
-			return new Vector2f(left.x - right.x, left.y - right.y);
-		}
-		dest.set(left.x - right.x, left.y - right.y);
-		return dest;
 	}
 
 	public Vector2f store(FloatBuffer buf) {
@@ -249,6 +236,13 @@ public final class Vector2f {
 		this.x = buf.get();
 		this.y = buf.get();
 		return this;
+	}
+
+	public static Vector2f scale(Vector2f size, float amount) {
+		Vector2f vec = new Vector2f(size);
+		vec.x *= amount;
+		vec.y *= amount;
+		return vec;
 	}
 
 }

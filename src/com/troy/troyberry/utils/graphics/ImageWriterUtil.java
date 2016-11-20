@@ -1,4 +1,4 @@
-package com.troy.troyberry.utils;
+package com.troy.troyberry.utils.graphics;
 
 import java.awt.*;
 import java.awt.image.*;

@@ -6,21 +6,26 @@ import java.util.*;
 public class Timer {
 
 	private long startTime, endTime;
+	private boolean running = false;
 
 	public Timer() {
+		running = true;
 		this.startTime = System.nanoTime();
 	}
-
-	public String getTime() {
+	
+	public String getTime(){
 		stop();
-		float difference = (this.endTime - this.startTime);
+		return getString(this.endTime - this.startTime);
+	}
+
+	public static String getString(long difference) {
 		String s;
-		//for millaseconds
+		// for milliseconds
 		if (difference > 1000000L && difference < 1000000000L) {
 			s = ((difference / (float) 1000000) + " milla seconds");
 
 		}
-		//for seconds
+		// for seconds
 		else if (difference > 1000000000L) {
 			s = ((difference / (float) 1000000000) + " seconds");
 		} else {
@@ -33,15 +38,23 @@ public class Timer {
 		return s;
 	}
 
+	public long getDelta() {
+		return Math.abs(this.endTime - this.startTime);
+	}
+
 	public Timer stop() {
-		this.endTime = System.nanoTime();
+		if (running) {
+			this.endTime = System.nanoTime();
+			running = false;
+		}
 		return this;
 		//
 	}
 
 	public Timer reset() {
-		this.startTime = System.nanoTime();
+		running = false;
 		this.endTime = 0L;
+		this.startTime = System.nanoTime();
 		return this;
 	}
 

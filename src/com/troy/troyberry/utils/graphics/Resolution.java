@@ -1,4 +1,6 @@
-package com.troy.troyberry.utils;
+package com.troy.troyberry.utils.graphics;
+
+import com.troy.troyberry.utils.*;
 
 public class Resolution {
 

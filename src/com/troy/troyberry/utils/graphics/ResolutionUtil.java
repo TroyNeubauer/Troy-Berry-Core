@@ -1,10 +1,11 @@
-package com.troy.troyberry.utils;
+package com.troy.troyberry.utils.graphics;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
 import com.troy.troyberry.math.*;
+import com.troy.troyberry.utils.*;
 
 public class ResolutionUtil {
 
