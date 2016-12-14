@@ -3,12 +3,8 @@ package com.troy.troyberry.collision;
 import com.troy.troyberry.math.*;
 
 public class AxisAlignedBB {
-	public final float minX;
-	public final float minY;
-	public final float minZ;
-	public final float maxX;
-	public final float maxY;
-	public final float maxZ;
+	public final float minX, minY, minZ;
+	public final float maxX, maxY, maxZ;
 
 	public AxisAlignedBB(float x1, float y1, float z1, float x2, float y2, float z2) {
 		this.minX = Math.min(x1, x2);
@@ -21,7 +17,7 @@ public class AxisAlignedBB {
 
 	/**
 	 * Adds the coordinates to the bounding box extending it if the point lies
-	 * outside the current ranges. Args: x, y, z
+	 * outside the current ranges.
 	 */
 	public AxisAlignedBB addCoord(float x, float y, float z) {
 		float minX = this.minX;
@@ -31,21 +27,21 @@ public class AxisAlignedBB {
 		float maxY = this.maxY;
 		float maxZ = this.maxZ;
 
-		if (x < 0.0D) {
+		if (x < 0.0f) {
 			minX += x;
-		} else if (x > 0.0D) {
+		} else if (x > 0.0f) {
 			maxX += x;
 		}
 
-		if (y < 0.0D) {
+		if (y < 0.0f) {
 			minY += y;
-		} else if (y > 0.0D) {
+		} else if (y > 0.0f) {
 			maxY += y;
 		}
 
-		if (z < 0.0D) {
+		if (z < 0.0f) {
 			minZ += z;
-		} else if (z > 0.0D) {
+		} else if (z > 0.0f) {
 			maxZ += z;
 		}
 
@@ -65,10 +61,10 @@ public class AxisAlignedBB {
 		float maxZ = this.maxZ + z;
 		return new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
 	}
-	
-	/** 
+
+	/**
 	 * Returns a new AABB that encapsulates this AABB and the parameter AABB
-	 * */
+	 */
 	public AxisAlignedBB union(AxisAlignedBB other) {
 		float minX = Math.min(this.minX, other.minX);
 		float minY = Math.min(this.minY, other.minY);
@@ -88,11 +84,23 @@ public class AxisAlignedBB {
 
 	/**
 	 * Returns whether the given bounding box intersects with this one.
-	 * @param axisAlignedBB the other bounding box to compare against
+	 * 
+	 * @param thisPosition
+	 *            the offset for this bounding box
+	 * @param axisAlignedBB
+	 *            the other bounding box to compare against
+	 * @param otherPosition
+	 *            the offset for other's bounding box
+	 * 
 	 */
-	public boolean intersectsWith(AxisAlignedBB other) {
-		return other.maxX > this.minX && other.minX < this.maxX
-				? (other.maxY > this.minY && other.minY < this.maxY ? other.maxZ > this.minZ && other.minZ < this.maxZ : false) : false;
+	public boolean intersectsWith(Vector3f thisPosition, AxisAlignedBB other, Vector3f otherPosition) {
+
+		return other.maxX + otherPosition.x > this.minX + thisPosition.x && other.minX + otherPosition.x < this.maxX + thisPosition.x
+				? (other.maxY + otherPosition.y > this.minY + thisPosition.y && other.minY + otherPosition.y < this.maxY + thisPosition.y
+						? other.maxZ + otherPosition.y > this.minZ + thisPosition.z
+								&& other.minZ + otherPosition.z < this.maxZ + thisPosition.z
+						: false)
+				: false;
 	}
 
 	/**
@@ -151,6 +159,7 @@ public class AxisAlignedBB {
 	}
 
 	public String toString() {
-		return "BoundingBox[" + this.minX + ", " + this.minY + ", " + this.minZ + " to " + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";
+		return "BoundingBox[" + this.minX + ", " + this.minY + ", " + this.minZ + " to " + this.maxX + ", " + this.maxY + ", " + this.maxZ
+				+ "]";
 	}
 }

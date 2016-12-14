@@ -6,10 +6,8 @@ import java.util.*;
 public class Timer {
 
 	private long startTime, endTime;
-	private boolean running = false;
 
 	public Timer() {
-		running = true;
 		this.startTime = System.nanoTime();
 	}
 	
@@ -43,16 +41,12 @@ public class Timer {
 	}
 
 	public Timer stop() {
-		if (running) {
 			this.endTime = System.nanoTime();
-			running = false;
-		}
 		return this;
 		//
 	}
 
 	public Timer reset() {
-		running = false;
 		this.endTime = 0L;
 		this.startTime = System.nanoTime();
 		return this;

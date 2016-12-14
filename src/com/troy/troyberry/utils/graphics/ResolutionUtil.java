@@ -5,7 +5,7 @@ import java.util.*;
 import java.util.List;
 import javax.swing.*;
 import com.troy.troyberry.math.*;
-import com.troy.troyberry.utils.*;
+import com.troy.troyberry.util.*;
 
 public class ResolutionUtil {
 

@@ -5,6 +5,19 @@ import java.util.*;
 public class Maths {
 
 	private static Random random = new Random();
+	
+	public static long pow(long base, long exp){        
+	    if (exp ==0) return 1;
+	    if (exp ==1) return base;
+
+	    if (exp % 2 == 0) {
+	        long half = pow(base, exp/2);
+	        return half * half;
+	    } else {
+	        long half = pow(base, (exp -1)/2);
+	        return base * half * half;
+	    }       
+	}
 
 	public static float lerp(float a, float b, float factor) {
 		return a + factor * (b - a);
@@ -31,10 +44,6 @@ public class Maths {
 	public static int round(double d) {
 		if (d > 0.0) return (int) (d + 0.5);
 		else return (int) (d - 0.5);
-	}
-
-	public static Vector2i getRowAndColom(int width, int value) {
-		return new Vector2i(value % width, value / width);
 	}
 
 	public static int clamp(int min, int max, int value) {
@@ -126,7 +135,7 @@ public class Maths {
 	}
 
 	public static float average(int... input) {
-		float count = 0;
+		int count = 0;
 		float total = 0f;
 		for (int i = 0; i < input.length; i++) {
 			count++;
@@ -167,5 +176,95 @@ public class Maths {
 	
 	public static double approximateDistanceBetweenPoints(Vector3f point1, Vector3f point2) {
 		return Math.abs(Math.abs(point1.x) - Math.abs(point2.x)) + Math.abs(Math.abs(point1.y) - Math.abs(point2.y)) + + Math.abs(Math.abs(point1.z) - Math.abs(point2.z));
+	}
+	
+	public static double evaluate(final String str) {
+		return new Object() {
+			int pos = -1, ch;
+
+			void nextChar() {
+				ch = (++pos < str.length()) ? str.charAt(pos) : -1;
+			}
+
+			boolean eat(int charToEat) {
+				while (ch == ' ')
+					nextChar();
+				if (ch == charToEat) {
+					nextChar();
+					return true;
+				}
+				return false;
+			}
+
+			double parse() {
+				nextChar();
+				double x = parseExpression();
+				if (pos < str.length()) {
+					try {
+						throw new RuntimeException("Unexpected: " + (char) ch);
+					} catch (Exception e) {
+						e.printStackTrace();
+						return 0.0;
+					}
+				}
+				return x;
+			}
+
+			// Grammar:
+			// expression = term | expression `+` term | expression `-` term
+			// term = factor | term `*` factor | term `/` factor
+			// factor = `+` factor | `-` factor | `(` expression `)`
+			// | number | functionName factor | factor `^` factor
+
+			double parseExpression() {
+				double x = parseTerm();
+				for (;;) {
+					if (eat('+')) x += parseTerm(); // addition
+					else if (eat('-')) x -= parseTerm(); // subtraction
+					else return x;
+				}
+			}
+
+			double parseTerm() {
+				double x = parseFactor();
+				for (;;) {
+					if (eat('*')) x *= parseFactor(); // multiplication
+					else if (eat('/')) x /= parseFactor(); // division
+					else return x;
+				}
+			}
+
+			double parseFactor() {
+				if (eat('+')) return parseFactor(); // unary plus
+				if (eat('-')) return -parseFactor(); // unary minus
+
+				double x;
+				int startPos = this.pos;
+				if (eat('(')) { // parentheses
+					x = parseExpression();
+					eat(')');
+				} else if ((ch >= '0' && ch <= '9') || ch == '.') { // numbers
+					while ((ch >= '0' && ch <= '9') || ch == '.')
+						nextChar();
+					x = Double.parseDouble(str.substring(startPos, this.pos));
+				} else if (ch >= 'a' && ch <= 'z') { // functions
+					while (ch >= 'a' && ch <= 'z')
+						nextChar();
+					String func = str.substring(startPos, this.pos);
+					x = parseFactor();
+					if (func.equals("sqrt")) x = Math.sqrt(x);
+					else if (func.equals("sin")) x = Math.sin(Math.toRadians(x));
+					else if (func.equals("cos")) x = Math.cos(Math.toRadians(x));
+					else if (func.equals("tan")) x = Math.tan(Math.toRadians(x));
+					else throw new RuntimeException("Unknown function: " + func);
+				} else {
+					throw new RuntimeException("Unexpected: " + (char) ch);
+				}
+
+				if (eat('^')) x = Math.pow(x, parseFactor()); // exponentiation
+
+				return x;
+			}
+		}.parse();
 	}
 }

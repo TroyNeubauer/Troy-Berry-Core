@@ -242,30 +242,6 @@ public final class Vector3f {
 		return this;
 	}
 
-	public final float getX() {
-		return this.x;
-	}
-
-	public final float getY() {
-		return this.y;
-	}
-
-	public final void setX(float x) {
-		this.x = x;
-	}
-
-	public final void setY(float y) {
-		this.y = y;
-	}
-
-	public void setZ(float z) {
-		this.z = z;
-	}
-
-	public float getZ() {
-		return this.z;
-	}
-
 	public String clip(int decimalPoints) {
 		decimalPoints += 1;
 		String x = this.x + "", y = this.y + "", z = this.z + "";

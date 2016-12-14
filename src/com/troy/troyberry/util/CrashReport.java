@@ -1,10 +1,10 @@
-package com.troy.troyberry.utils.general;
+package com.troy.troyberry.util;
 
 import java.io.*;
 import java.text.*;
 import java.util.*;
 
-import com.troy.troyberry.utils.*;
+import com.troy.troyberry.util.*;
 
 /** Represents a crash report in case that happens **/
 public class CrashReport {
