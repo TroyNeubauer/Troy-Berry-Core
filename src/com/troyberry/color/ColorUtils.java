@@ -92,8 +92,8 @@ public class ColorUtils {
 	 */
 	public static TroyColor combineForBrightest(TroyColor color1, TroyColor color2){
 		int r = Math.max(color1.getRed(), color2.getRed());
-		int g = Math.max(color1.getRed(), color2.getRed());
-		int b = Math.max(color1.getRed(), color2.getRed());
+		int g = Math.max(color1.getGreen(), color2.getGreen());
+		int b = Math.max(color1.getBlue(), color2.getBlue());
 		return new TroyColor(r, g, b, color1.getAlpha(), color1.getFormat());
 	}
 	
@@ -106,10 +106,10 @@ public class ColorUtils {
 	 * @param color2 The second color
 	 * @return A new color with the brightest parts each channel
 	 */
-	public static TroyColor combineForLowest(TroyColor color1, TroyColor color2){
+	public static TroyColor combineForDarkest(TroyColor color1, TroyColor color2){
 		int r = Math.min(color1.getRed(), color2.getRed());
-		int g = Math.min(color1.getRed(), color2.getRed());
-		int b = Math.min(color1.getRed(), color2.getRed());
+		int g = Math.min(color1.getGreen(), color2.getGreen());
+		int b = Math.min(color1.getBlue(), color2.getBlue());
 		return new TroyColor(r, g, b, color1.getAlpha(), color1.getFormat());
 	}
 	
