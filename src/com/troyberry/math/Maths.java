@@ -20,14 +20,27 @@ public class Maths {
     }
 	
 	public static long pow(long base, long exp){        
-	    if (exp ==0) return 1;
-	    if (exp ==1) return base;
+	    if (exp == 0) return 1;
+	    if (exp == 1) return base;
 
 	    if (exp % 2 == 0) {
 	        long half = pow(base, exp/2);
 	        return half * half;
 	    } else {
 	        long half = pow(base, (exp -1)/2);
+	        return base * half * half;
+	    }       
+	}
+	
+	public static int pow(int base, int exp){        
+	    if (exp == 0) return 1;
+	    if (exp == 1) return base;
+
+	    if (exp % 2 == 0) {
+	        int half = pow(base, exp/2);
+	        return half * half;
+	    } else {
+	        int half = pow(base, (exp -1)/2);
 	        return base * half * half;
 	    }       
 	}

@@ -5,11 +5,12 @@ public class StringFormatter {
 	public static String byteToHexString(byte b){
 		return String.format("%02X ", b).trim();
 	}
+	
 	/**
 	 * Returns a String the represents a byte in binary form<br>
 	 * The String will always be 8 characters long<br>
 	 * IE: <code>
-	 * byte: 16 -> 00001111, byte: 100 -> 01100100,<br> byte: 0 -> 00000000
+	 * byte: 16 -> 00010000, byte: 100 -> 01100100,<br> byte: 0 -> 00000000
 	 * </code>
 	 * @param b The byte to be molded after
 	 * @return The formatted String
@@ -18,6 +19,23 @@ public class StringFormatter {
 		String result = "";
 		for(int i = 7; i >= 0; i--){
 			result += ((b >> i) & 0b00000001);
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns a String the represents a long in binary form<br>
+	 * The String will always be 64 characters long<br>
+	 * IE: <code>
+	 * long: 16 -> 0000...preceding 0's 010000, long: 100 -> 01100100,<br> long: 0 -> 00000000
+	 * </code>
+	 * @param l The long to be molded after
+	 * @return The formatted String
+	 */
+	public static String longToBinaryString(long l){
+		String result = "";
+		for(int i = Long.SIZE - 1; i >= 0; i--){
+			result += ((l >> i) & 0b0000000000000000000000000000000000000000000000000000000000000001);
 		}
 		return result;
 	}
