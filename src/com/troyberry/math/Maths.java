@@ -2,23 +2,53 @@ package com.troyberry.math;
 
 import java.util.*;
 
+/**
+ * A static class that has various helpful math functions not in the {@link Math} class
+ * @author Troy Neubauer
+ *	
+ */
 public class Maths {
 
 	private static Random random = new Random();
+	/** PI as a float to the 23rd decimal */
     public static final float PI = 3.14159265358979323846264f;
+    /** PI as a float to the 5th decimal to save time in calculations that don't need to be super accurate <br>
+     * For the a more accurate PI as a float {@link Maths#PI}*/
+    public static final float SHORT_PI = 3.14159f;
     
-    public static final float sin(double angle){
-    	return (float)StrictMath.sin(angle);
+    /**
+     * Returns the trigonometric sine of an angle as a float. This method uses {@link Math#sin(double)}
+     * @param a An angle, in radians.
+     * @return The sine of the argument.
+     */
+    public static final float sinFloat(double a){
+    	return (float)StrictMath.sin(a);
     }
     
-    public static final float cos(double angle){
-    	return (float)StrictMath.cos(angle);
+    /**
+     * Returns the trigonometric cosine of an angle as a float. This method uses {@link Math#cos(double)}
+     * @param a An angle, in radians.
+     * @return The cosine of the argument.
+     */
+    public static final float cosFloat(double a){
+    	return (float)StrictMath.cos(a);
     }
     
-    public static final float tan(double angle){
-    	return (float)StrictMath.tan(angle);
+    /**
+     * Returns the trigonometric tangent of an angle as a float. This method uses {@link Math#tan(double)}
+     * @param a An angle, in radians.
+     * @return The tangent of the argument.
+     */
+    public static final float tanFloat(double a){
+    	return (float)StrictMath.tan(a);
     }
 	
+    /**
+     * Raises the base to the power of the exponent and returns the result
+     * @param base The base
+     * @param exp The power to raise the base to
+     * @return The result of base^exp
+     */
 	public static long pow(long base, long exp){        
 	    if (exp == 0) return 1;
 	    if (exp == 1) return base;
@@ -32,6 +62,12 @@ public class Maths {
 	    }       
 	}
 	
+    /**
+     * Raises the base to the power of the exponent and returns the result
+     * @param base The base
+     * @param exp The power to raise the base to
+     * @return The result of base^exp
+     */
 	public static int pow(int base, int exp){        
 	    if (exp == 0) return 1;
 	    if (exp == 1) return base;
@@ -45,50 +81,186 @@ public class Maths {
 	    }       
 	}
 
-	public static float lerp(float a, float b, float factor) {
-		return a + factor * (b - a);
+	/**
+	 * Linearly interpolates between to factors a, and b with the factor f.<br>
+	 * <b>Special cases:</b>
+	 * The calculation will continue even if f is > 1.0f or < 0.0f, for a safe version of this calculation 
+	 * see {@link Maths#lerpSafe(float, float, float)} 
+	 * @param a The first number
+	 * @param b The second number
+	 * @param f The factor to interpolate between a and b
+	 * @return The interpolated output
+	 */
+	public static float lerp(float a, float b, float f) {
+		return a + f * (b - a);
 	}
 	
-	public static float lerpSafe(float a, float b, float factor) {
-		factor = clamp(0.0f, 1.0f, factor);
-		return a + factor * (b - a);
-	}
-
-	public static double lerp(double a, double b, double f) {
+	/**
+	 * Linearly interpolates between two factors a, and b with the factor f "safely".<br>
+	 * The factor f is clamped between 0 and 1 so any values outside that range will be 0 or 1 {@link Maths#clamp(float, float, float)}
+	 * @param a The first number
+	 * @param b The second number
+	 * @param f The factor to interpolate between a and b
+	 * @return The interpolated output
+	 */
+	public static float lerpSafe(float a, float b, float f) {
+		f = clamp(0.0f, 1.0f, f);
 		return a + f * (b - a);
 	}
 
+	/**
+	 * Linearly interpolates between two factors a, and b with the factor f.<br>
+	 * <b>Special cases:</b>
+	 * The calculation will continue even if f is > 1.0 or < 0.0, for a safe version of this calculation 
+	 * see {@link Maths#lerpSafe(double, double, double)} 
+	 * @param a The first number
+	 * @param b The second number
+	 * @param f The factor to interpolate between a and b
+	 * @return The interpolated output
+	 */
+	public static double lerp(double a, double b, double f) {
+		return a + f * (b - a);
+	}
+	
+	/**
+	 * Linearly interpolates between two factors a, and b with the factor f "safely".<br>
+	 * The factor f is clamped between 0 and 1 so any values outside that range will be 0 or 1 {@link Maths#clamp(double, double, double)}
+	 * @param a The first number
+	 * @param b The second number
+	 * @param f The factor to interpolate between a and b
+	 * @return The interpolated output
+	 */
+	public static double lerpSafe(double a, double b, double f) {
+		f = clamp(0.0, 1.0, f);
+		return a + f * (b - a);
+	}
+	
+	/**
+	 * Returns the greatest integer less than or equal to the real number f.<br>
+	 * IE: floor(0.9f) = 0, floor(5.0f) = 5, floor(-5.5f) = -6
+	 * @param f The float to floor
+	 * @return The floored result
+	 */
 	public static int floor(float f) {
 		int xi = (int) f;
 		return f < xi ? xi - 1 : xi;
 	}
 
-	public static int celi(float f) {
-		return (int) (f + 1f);
-	}
-	
-	public static int celi(double d) {
-		return (int) (d + 1.0);
+	/**
+	 * Returns the greatest integer less or equal to than the real number d.<br>
+	 * IE: floor(0.9) = 0, floor(5.0) = 5, floor(-5.5) = -6
+	 * @param d The double to floor
+	 * @return The floored result
+	 */
+	public static int floor(double d) {
+		int xi = (int) d;
+		return d < xi ? xi - 1 : xi;
 	}
 
+	/**
+	 * Returns the lowest integer greater than or equal to the real number f.<br>
+	 * IE: ceil(0.9f) = 1, ceil(5.0f) = 5, ceil(-5.5f) = -5
+	 * @param f The float to floor
+	 * @return The floored result
+	 */
+	public static int ceil(float f) {
+		int xi = (int) f;
+		return f > xi ? xi + 1 : xi;
+	}
+	
+	/**
+	 * Returns the lowest integer greater than or equal to the real number d.<br>
+	 * IE: ceil(0.9) = 1, ceil(5.0) = 5, ceil(-5.5) = -5
+	 * @param f The float to floor
+	 * @return The floored result
+	 */
+	public static int ceil(double d) {
+		int xi = (int) d;
+		return d > xi ? xi + 1 : xi;
+	}
+
+	/**
+	 * Rounds the float f to the nearest integer.<br>
+	 * This method abides by Math rules therefore 0.5f will be rounded up.
+	 * IE: round(5.5f) = 6, round(0.3f) = 0, round(-0.7f) = -1, round(-0.3f) = 0
+	 * @param f The float to round
+	 * @return The rounded integer
+	 */
 	public static int round(float f) {
 		if (f >= 0f) return (int) (f + 0.5f);
 		else return (int) (f - 0.5f);
 	}
 
+	/**
+	 * Rounds the double d to the nearest integer.<br>
+	 * This method abides by Math rules therefore 0.5 will be rounded up.
+	 * IE: round(5.5) = 6, round(0.3) = 0, round(-0.7) = -1, round(-0.3) = 0
+	 * @param d The double to round
+	 * @return The rounded integer
+	 */
 	public static int round(double d) {
 		if (d >= 0.0) return (int) (d + 0.5);
 		else return (int) (d - 0.5);
 	}
 
+	/**
+	 * Clamps a value between a minimum and a maxiumn.<br>
+	 * Any values lower than the min will cause min to be returned. Any values greater than the max will cause max to be returned. 
+	 * Any values in between will return themselves.<br><br>
+	 * clamp(min, max, value)<br>
+	 * IE: clamp(0, 10, 5) = 5, clamp(0, 10, -5) = 0, clamp(0, 10, 50) = 10, clamp(0, 10, 0) = 0, clamp(0, 10, 9999) = 10<br><br>
+	 * Because pointers don't exist in Java, in order to clamp the integer i in between 0 and 10, the following code must be used:<code><br>
+	 * int i = -1000;<br>
+	 * i = Maths.clamp(0, 10, i);<br>
+	 * </code><br>
+	 * After this code segment, i will have the value of 0
+	 * @param min The minimum value
+	 * @param max The maxiumn value
+	 * @param value The value to check
+	 * @return The clamped value
+	 */
 	public static int clamp(int min, int max, int value) {
 		return Math.max(Math.min(value, max), min);
 	}
 
+	/**
+	 * Clamps a value between a minimum and a maxiumn.<br>
+	 * Any values lower than the min will cause min to be returned. Any values greater than the max will cause max to be returned. 
+	 * Any values in between will return themselves.<br><br>
+	 * clamp(min, max, value)<br>
+	 * IE: clamp(0.0f, 10.0f, 5.5f) = 5.5f, clamp(0.0f, 10.0f, -5.0f) = 0.0f, clamp(0.0f, 10.0f, 50.0f) = 10.0f, 
+	 * clamp(0.0f, 10.0f, -0.1f) = 0.0f, clamp(0.0f, 10.0f, 9999.5f) = 10.0f <br><br>
+	 * Because pointers don't exist in Java, in order to clamp the float i in between 0.0f and 10.0f, the following code must be used:<code><br>
+	 * float i = -1000.0f;<br>
+	 * i = Maths.clamp(0.0f, 10.0f, i);<br>
+	 * </code><br>
+	 * After this code segment, i will have the value of 0
+	 * @param min The minimum value
+	 * @param max The maxiumn value
+	 * @param value The value to check
+	 * @return The clamped value
+	 */
 	public static float clamp(float min, float max, float value) {
 		return Math.max(Math.min(value, max), min);
 	}
 
+	/**
+	 * Clamps a value between a minimum and a maxiumn.<br>
+	 * Any values lower than the min will cause min to be returned. Any values greater than the max will cause max to be returned. 
+	 * Any values in between will return themselves.<br><br>
+	 * clamp(min, max, value)<br>
+	 * IE: clamp(0.0, 10.0, 5.5) = 5.5, clamp(0.0, 10.0, -5.0) = 0.0, clamp(0.0, 10.0, 50.0) = 10.0, clamp(0.0, 10.0, -0.1) = 0.0, 
+	 * clamp(0.0, 10.0, 9999.5) = 10.0 <br><br>
+	 * Because pointers don't exist in Java, in order to clamp the integer i in between 0 and 10, the following code must be used:<code><br>
+	 * int i = -1000;<br>
+	 * i = Maths.clamp(0, 10, i);<br>
+	 * </code><br>
+	 * After this code segment, i will have the value of 0
+	 * @param min The minimum value
+	 * @param max The maxiumn value
+	 * @param value The value to check
+	 * @return The clamped value
+	 */
 	public static double clamp(double min, double max, double value) {
 		return Math.max(Math.min(value, max), min);
 	}
@@ -125,20 +297,20 @@ public class Maths {
 		return Math.sqrt(Math.pow(x - x2, 2) + Math.pow(y - y2, 2) + Math.pow(z - z2, 2));
 	}
 
-	public static double getDistanceBetweenPoints(Vector3f vector3f, Vector3d position) {
-		return (double) Math.sqrt(Math.pow(vector3f.x - position.x, 2) + Math.pow(vector3f.y - position.y, 2));
+	public static double getDistanceBetweenPoints(Vector3f point1, Vector3d point2) {
+		return (double) Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
 	}
 	
-	public static double getDistanceBetweenPoints(Vector2d a, Vector2d b) {
-		return getDistanceBetweenPoints(a.x, a.y, b.x, b.y);
+	public static double getDistanceBetweenPoints(Vector2d point1, Vector2d point2) {
+		return getDistanceBetweenPoints(point1.x, point1.y, point2.x, point2.y);
 	}
 	
 	public static float getDistanceBetweenPoints(Vector3f point1, Vector3f point2) {
 		return (float) Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2) + Math.pow(point1.z - point2.z, 2));
 	}
 	
-	public static double getDistanceBetweenPoints(Vector3d left, Vector3d right) {
-		return (double) Math.sqrt(Math.pow(left.x - right.x, 2) + Math.pow(left.y - right.y, 2) + Math.pow(left.z - right.z, 2));
+	public static double getDistanceBetweenPoints(Vector3d point1, Vector3d point2) {
+		return (double) Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2) + Math.pow(point1.z - point2.z, 2));
 	}
 	
 	public static double getDistanceBetweenPoints(float x, float y, float z,

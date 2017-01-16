@@ -8,6 +8,12 @@ import javax.swing.*;
 
 import com.troyberry.math.*;
 
+/**
+ * A static utility class for managing resolutions.
+ * @author Troy Neubauer
+ * @see Resolution
+ * @see AspectRatio
+ */
 public class ResolutionUtil {
 
 	private static Map<String, Resolution> sizes = new HashMap<String, Resolution>();
@@ -73,16 +79,22 @@ public class ResolutionUtil {
 		if (aspectRatios.contains(ratio)) return;
 		aspectRatios.add(ratio);
 	}
-
+	
+	/**
+	 * Returns weather or not two resolution's share the same aspect ratio
+	 * @param a The first resolution
+	 * @param b The second resolution
+	 * @return weather or not two resolution's share the same aspect ratio
+	 */
 	public static boolean sameAspectRatio(Resolution a, Resolution b) {
-		return false;
+		return a.aspectRatio.equals(b.aspectRatio);
 	}
-
-	public static AspectRatio getAspectRatio(Resolution resolution) {
-
-		return AspectRatio.UNSUPPORTED;
-	}
-
+	
+	/**
+	 * Returns a list of all the aspect ratios supported by Troy Berry Core
+	 * @return The list
+	 * @see AspectRatio
+	 */
 	public static AspectRatio[] getAvilableAspectRatios() {
 		AspectRatio[] ratios = new AspectRatio[aspectRatios.size()];
 		Object[] objects = aspectRatios.toArray();
@@ -92,6 +104,13 @@ public class ResolutionUtil {
 		return ratios;
 	}
 
+	/**
+	 * Creates a new JFrame with the size of the primary monitor * the size parameter.<br>
+	 * IE 0.75 would create a window that is 3/4's the size of the primary monitor
+	 * @param size The value to scale the size down by 0.01 - 1.0
+	 * @return The JFrame new JFrame object that is the desired size
+	 * @see JFrame
+	 */
 	public static JFrame createWindowOnPrimaryMonitor(double size) {
 		size = Maths.clamp(0.00001, 1.0, size);
 		JFrame frame = new JFrame();
@@ -101,28 +120,39 @@ public class ResolutionUtil {
 		return frame;
 	}
 
+	/**
+	 * Gets the resolution of the primary monitor * the size parameter.<br>
+	 * IE 0.75 would return a resolution that is 3/4's the size of the primary monitor
+	 * @param size The value to scale the size down by 0.01 - 1.0
+	 * @return
+	 */
 	public static Resolution getscaledResolution(double size) {
 		DisplayMode device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
 		return new Resolution((int) (device.getWidth() * size), (int) (device.getHeight() * size), (size == 1.0));
 	}
 
+	/**
+	 * Gets the resolution from a JFrame
+	 * @param frame The frame to extract the resolution from
+	 * @return The resolution of the JFrame
+	 * @see Resolution
+	 */
 	public static Resolution getResolution(JFrame frame) {
 		return new Resolution(frame.getWidth(), frame.getHeight(),
 			frame.getWidth() == GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth()
 				&& frame.getHeight() == GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getHeight());
 	}
 
+	/**
+	 * Gets the aspect ratio from a JFrame
+	 * @param frame The frame to extract the resolution from
+	 * @return The resolution of the JFrame
+	 * @see Resolution
+	 */
 	public static AspectRatio getAspectRatio(JFrame frame) {
 		return new Resolution(frame.getWidth(), frame.getHeight(),
 			frame.getWidth() == GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth() && frame
 				.getHeight() == GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getHeight()).aspectRatio;
-	}
-
-	public static void printAvilableAspectRatios() {
-		System.out.println("Supported aspect ratios are:");
-		for (int i = 0; i < aspectRatios.size(); i++) {
-			System.out.println(aspectRatios.get(i));
-		}
 	}
 
 }

@@ -2,10 +2,31 @@ package com.troyberry.collision;
 
 import com.troyberry.math.*;
 
+/**
+ * Represents a 3D bounding box that is axis aligned, (cannot be rotated)<br>
+ * AxisAlignedBB's are immutable
+ * @author Troy Neubauer
+ *
+ */
 public class AxisAlignedBB {
-	public final float minX, minY, minZ;
-	public final float maxX, maxY, maxZ;
-
+	protected final float minX, minY, minZ;
+	protected final float maxX, maxY, maxZ;
+	
+	/**
+	 * Constructs a new bounding box between the specified coordinates
+	 */
+	public AxisAlignedBB(Vector3f vec1, Vector3f vec2) {
+		this.minX = Math.min(vec1.x, vec2.x);
+		this.minY = Math.min(vec1.y, vec2.y);
+		this.minZ = Math.min(vec1.z, vec2.z);
+		this.maxX = Math.max(vec1.x, vec2.x);
+		this.maxY = Math.max(vec1.y, vec2.y);
+		this.maxZ = Math.max(vec1.z, vec2.z);
+	}
+	
+	/**
+	 * Constructs a new bounding box with the specified coordinates
+	 */
 	public AxisAlignedBB(float x1, float y1, float z1, float x2, float y2, float z2) {
 		this.minX = Math.min(x1, x2);
 		this.minY = Math.min(y1, y2);
@@ -162,4 +183,30 @@ public class AxisAlignedBB {
 		return "BoundingBox[" + this.minX + ", " + this.minY + ", " + this.minZ + " to " + this.maxX + ", " + this.maxY + ", " + this.maxZ
 				+ "]";
 	}
+
+	public float getMinX() {
+		return minX;
+	}
+
+	public float getMinY() {
+		return minY;
+	}
+
+	public float getMinZ() {
+		return minZ;
+	}
+
+	public float getMaxX() {
+		return maxX;
+	}
+
+	public float getMaxY() {
+		return maxY;
+	}
+
+	public float getMaxZ() {
+		return maxZ;
+	}
+	
+	
 }

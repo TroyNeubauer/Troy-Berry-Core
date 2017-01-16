@@ -31,26 +31,21 @@ public class ColorUtils {
 	}
 	
 	public void checkColor(int red, int green, int blue, int alpha){
-        boolean rangeError = false;
         String badComponentString = "";
 
         if (alpha < TroyColor.MIN_VALUE || alpha > TroyColor.MAX_VALUE) {
-            rangeError = true;
             badComponentString +=  " Alpha " + alpha;
         }
         if (red   < TroyColor.MIN_VALUE ||   red > TroyColor.MAX_VALUE) {
-            rangeError = true;
             badComponentString +=  " Red " +     red;
         }
         if (green < TroyColor.MIN_VALUE ||  green > TroyColor.MAX_VALUE) {
-            rangeError = true;
             badComponentString += " Green " +  green;
         }
         if (blue  < TroyColor.MIN_VALUE || blue > TroyColor.MAX_VALUE) {
-            rangeError = true;
             badComponentString += " Blue " +    blue;
         }
-        if (rangeError == true) {
+        if (!badComponentString.isEmpty()) {
         	throw new IllegalArgumentException("Color parameter outside of expected range:" + badComponentString);
         }
 	}
@@ -79,6 +74,20 @@ public class ColorUtils {
 		total |= (g << resultFormat.getGreenOffset());
 		total |= (b << resultFormat.getBlueOffset());
 		return total;
+	}
+	
+	/**
+	 * Divides the components of the TroyColor color by divisor and returns a new TeoyColor object.<br>
+	 * his method will not change any of the values of color
+	 * @param color The color to divide
+	 * @param divisor How much to divide by
+	 * @return A new color that has been divided
+	 */
+	public static TroyColor divide(TroyColor color, double divisor) {
+		int r = Maths.round(color.getRed() / divisor);
+		int g = Maths.round(color.getGreen() / divisor);
+		int b = Maths.round(color.getBlue() / divisor);
+		return new TroyColor(r, g, b);
 	}
 	
 	/**

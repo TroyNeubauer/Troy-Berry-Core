@@ -5,8 +5,8 @@ import java.awt.*;
 import com.troyberry.math.*;
 
 /**
- * Represents an RGB color with or without transparency. The maxiumn depth for a color is 8 bits.<br>
- * The color can be converted to almost any image format in {@link ColorFormat }. If the format doesn't support alpha, 
+ * Represents an RGB color with or without transparency. The maxiumn depth for this representation of a color is 8 bits.<br>
+ * The color can be converted to almost any color format in {@link ColorFormat }. If the format doesn't support alpha, 
  * like {@link ColorFormat#RGB }, the alpha will be locked to 255 (opaque). If this isan't desirable, all non alpha colors have an
  * alpha supported big brother like {@link ColorFormat#RGBA } or {@link ColorFormat#ARGB }<br>
  * <br>

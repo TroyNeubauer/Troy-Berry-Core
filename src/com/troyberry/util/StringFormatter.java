@@ -110,8 +110,38 @@ public class StringFormatter {
 		
 	}
 	
+	/**
+	 * Returns a string representing the amount of bytes in "Standard data form" with decimals</br> 
+	 * Examples:<code> 33 -> "33B", 15360 -> "15.43K", 583008256 -> "556.5MB", 3221225472 -> "3.1TB" etc.</code></br>
+	 * This method assumes 1024 bits to one kilobyte 1024^2 to one megabyte
+	 * @param bytes The value in bytes to be formatted
+	 * @return The formatted string
+	 */
+	public static String formatBytesExact(long bytes) {
+		int unit = 1024;
+		if (bytes < unit) return bytes + " B";
+		int exp = (int) (Math.log(bytes) / Math.log(unit));
+		String pre = ("KMGTPE").charAt(exp-1) + "";
+		return String.format("%.1f %sB", (double)bytes / Math.pow(unit, exp), pre);
+		
+	}
+	
 	// No instances of this class allowed
 	private StringFormatter() {
+	}
+
+	/**
+	 * Ensures that the string is all lower case except for the first letter 
+	 * @param string The string to capitalize
+	 * @return The formatted string
+	 */
+	public static String capitalizeFirstLetter(String string) {
+		String result = string.toLowerCase();
+		if(result.length() > 0) {
+			String end = result.substring(1);
+			result = string.substring(0, 1).toUpperCase() + end;
+		}
+		return result;
 	}
 
 }
