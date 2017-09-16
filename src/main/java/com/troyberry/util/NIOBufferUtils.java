@@ -4,7 +4,7 @@ import java.nio.*;
 
 import com.troyberry.math.*;
 
-public class TroyBufferUtils {
+public class NIOBufferUtils {
 	public static ByteBuffer createByteBuffer(byte[] array) {
 		ByteBuffer result = ByteBuffer.allocateDirect(array.length).order(ByteOrder.nativeOrder());
 		result.put(array).flip();

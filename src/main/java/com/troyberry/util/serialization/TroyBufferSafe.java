@@ -124,14 +124,17 @@ public class TroyBufferSafe extends TroyBuffer {
 
 	@Override
 	protected int readIntImpl(long index) {
-
-		return 0;
+		int i = (int) (((int) readByteImpl(index) << 24) | ((int) readByteImpl(index << 16) | ((int) readByteImpl(index) << 8))
+				| ((int) readByteImpl(index << 00)));
+		return flipRead ? Integer.reverseBytes(i) : i;
 	}
 
 	@Override
 	protected long readLongImpl(long index) {
-
-		return 0;
+		long l = (long) (((long) readByteImpl(index) << 56) | ((long) readByteImpl(index << 48) | ((long) readByteImpl(index) << 40))
+				| ((long) readByteImpl(index << 32))) | ((long) readByteImpl(index) << 24) | ((long) readByteImpl(index << 16) | ((long) readByteImpl(index) << 8))
+				| ((long) readByteImpl(index << 00));
+		return flipRead ? Long.reverseBytes(l) : l;
 	}
 
 	@Override
@@ -140,12 +143,21 @@ public class TroyBufferSafe extends TroyBuffer {
 
 	@Override
 	public byte[] getBytes(long offset, int length) {
-
-		return null;
+		byte[] result = new byte[length];
+		for (int i = 0; i < length; i++) {
+			result[i] = readByte(offset + i);
+		}
+		return result;
 	}
 
 	@Override
 	public void free() {
+		if (bytes != null) {
+			for (int i = 0; i < bytes.length; i++) {
+				this.bytes[i] = null;
+			}
+			this.bytes = null;
+		}
 	}
 
 	@Override
@@ -154,14 +166,27 @@ public class TroyBufferSafe extends TroyBuffer {
 
 	@Override
 	public long address() {
-
 		return 0;
 	}
 
 	@Override
 	public String getElements() {
-
-		return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append('[');
+		for (int i = 0; i < bytes.length; i++) {
+			byte[] curr = bytes[i];
+			for (int j = 0; j < curr.length; j++) {
+				sb.append(Byte.toString(curr[j]));
+				if ((i == bytes.length - 1 && j == curr.length - 1)) {
+					continue;
+				} else {
+					sb.append(',');
+					sb.append(' ');
+				}
+			}
+		}
+		sb.append(']');
+		return sb.toString();
 	}
 
 	@Override
@@ -173,7 +198,32 @@ public class TroyBufferSafe extends TroyBuffer {
 		if (bytes[0] == null) {
 			bytes[0] = new byte[readBuffer.length];
 		}
+		ensureCapacity(readBuffer.length);
 		System.arraycopy(readBuffer, 0, bytes[0], 0, readBuffer.length);
+	}
+
+	@Override
+	protected void writeFileImpl(long index, File file, long offset, long length) throws IOException {
+		BufferedInputStream stream = new BufferedInputStream(new FileInputStream(file));
+		while (true) {
+			int currentByte = stream.read();
+			if (currentByte == -1)
+				break;
+			writeByte((byte) currentByte);
+		}
+		stream.close();
+	}
+
+	@Override
+	protected void readFileImpl(File file, long index, long length) throws IOException {
+		BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
+		for (int i = 0; i < bytes.length; i++) {
+			byte[] curr = bytes[i];
+			for (int j = 0; j < curr.length; j++) {
+				stream.write(curr[j]);
+			}
+		}
+		stream.close();
 	}
 
 }

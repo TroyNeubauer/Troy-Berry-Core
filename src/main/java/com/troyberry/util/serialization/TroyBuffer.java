@@ -7,9 +7,11 @@ import com.troyberry.util.*;
 
 import sun.misc.Unsafe;
 
+@SuppressWarnings("restriction") // We use Unsafe and we want the compiler to shut up
 public abstract class TroyBuffer {
 
 	protected static final int DEFAULT_SIZE = 1024;
+
 	private static final Unsafe unsafe = MiscUtil.getUnsafe();
 	// format:off
 	// For encoding strings
@@ -64,8 +66,8 @@ public abstract class TroyBuffer {
 		if (MiscUtil.isUnsafeSupported()) {
 			if (buffer instanceof TroyBufferUnsafe) {
 				TroyBufferUnsafe result = new TroyBufferUnsafe(capacity);
-				NativeTroyBufferUtil.nmemcpy(result.address, ((TroyBufferUnsafe) buffer).address, buffer.size);
-				result.size = buffer.size;
+				NativeTroyBufferUtil.nmemcpy(result.address, ((TroyBufferUnsafe) buffer).address, buffer.limit);
+				result.limit = buffer.limit;
 				result.positionRead = buffer.positionRead;
 				result.positionWrite = buffer.positionWrite;
 				return result;
@@ -74,68 +76,86 @@ public abstract class TroyBuffer {
 		return null;
 	}
 
+	/**
+	 * Copies the data from the desired ByteBuffer to a new TroyBuffer that doesn't use sun.misc.Unsafe and native memory. <br>
+	 * All data from the index zero to the limit of the specified ByteBuffer will be copied
+	 * 
+	 * @param buffer
+	 *            The buffer to copy
+	 * @return A new TroyBuffer representing a copy of the desired ByteBuffer
+	 */
 	public static TroyBuffer createSafe(ByteBuffer buffer) {
-		TroyBufferSafe safe = new TroyBufferSafe(buffer.limit());
-		byte[] bytes = null;
+		TroyBuffer result = new TroyBufferSafe(buffer.limit(), buffer.capacity());
 		if (buffer.hasArray()) {
-			bytes = buffer.array();
-		} else {// The ByteBuffer has no backing array, so we need to create out own array and copy from it to the TroyBuffer
-			bytes = new byte[buffer.limit()];
-			for (int i = 0; i < bytes.length; i++) {
-				bytes[i] = buffer.get(i);
+			result.setFromArray(buffer.array());
+		} else {
+			for (int i = 0; i < buffer.limit(); i++) {
+				result.writeByte(i, buffer.get(i));
 			}
 		}
-		safe.writeBytesRaw(0, bytes.length, bytes);
-		return safe;
+		return result;
 	}
 
+	/**
+	 * Copies the data from the desired ByteBuffer to a new TroyBuffer. <br>
+	 * All data from the index zero to the limit of the specified ByteBuffer will be copied
+	 * 
+	 * @implSpec the data will be copied using the most efficient method available, for example if the ByteBuffer is direct and the system
+	 *           supports unsafe, the memory will be copied directly.
+	 * @param buffer
+	 *            The buffer to copy
+	 * @return A new TroyBuffer representing a copy of the desired ByteBuffer
+	 */
 	public static TroyBuffer create(ByteBuffer buffer) {
+		TroyBuffer result;
 		if (MiscUtil.isUnsafeSupported()) {
-			TroyBuffer result = null;
 			if (buffer.isDirect()) {
 				result = new TroyBufferUnsafe(buffer.limit());
 				NativeTroyBufferUtil.nmemcpy(result.address(), MiscUtil.address(buffer), buffer.limit());
 				result.capacity = buffer.limit();
-				result.size = buffer.limit();
+				result.limit = buffer.limit();
 			} else {
 				result = new TroyBufferUnsafe(0);
-				byte[] bytes = null;
-				if (buffer.hasArray()) {// Write the array directly into the TroyBuffer
-					bytes = buffer.array();
-				} else {// The ByteBuffer has no backing array, so we need to create out own array and copy from it to the TroyBuffer
-					bytes = new byte[buffer.limit()];
-					for (int i = 0; i < bytes.length; i++) {
-						bytes[i] = buffer.get(i);
+				if (buffer.hasArray()) {
+					result.setFromArray(buffer.array());
+				} else {
+					for (int i = 0; i < buffer.limit(); i++) {
+						result.writeByte(i, buffer.get(i));
 					}
-
 				}
-				result.writeBytesRaw(0, bytes.length, bytes);
 			}
-			return result;
+
 		} else {
-			// TODO: have safe TroyBuffer
+			result = new TroyBufferSafe(buffer.limit(), buffer.capacity());
+			if (buffer.hasArray()) {
+				result.setFromArray(buffer.array());
+			} else {
+				for (int i = 0; i < buffer.limit(); i++) {
+					result.writeByte(i, buffer.get(i));
+				}
+			}
 		}
-		return null;
+		return result;
 	}
 
 	public final static TroyBuffer create() {
 		return create(DEFAULT_SIZE);
 	}
 
-	protected volatile long positionRead, positionWrite, size, capacity;
+	protected volatile long positionRead, positionWrite, limit, capacity;
 	protected boolean flipRead = ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN, flipWrite = ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN;
 
 	TroyBuffer(long size) {
 		this.positionRead = 0;
 		this.positionWrite = 0;
-		this.size = 0;
+		this.limit = 0;
 		this.capacity = size;
 	}
 
 	TroyBuffer(long size, long capacity) {
 		this.positionRead = 0;
 		this.positionWrite = 0;
-		this.size = size;
+		this.limit = size;
 		this.capacity = capacity;
 	}
 
@@ -876,7 +896,7 @@ public abstract class TroyBuffer {
 	}
 
 	/**
-	 * Reads elements bytes from the buffer starting at {@link index}, to the bytes array starting at index {@link offset}
+	 * Reads elements number of bytes bytes from the buffer starting at {@link index}, to the bytes array starting at index {@link offset}
 	 * 
 	 * @param index
 	 *            The index to start reading at
@@ -977,8 +997,12 @@ public abstract class TroyBuffer {
 		return positionWrite;
 	}
 
-	public long size() {
-		return size;
+	public long limit() {
+		return limit;
+	}
+	
+	public void limit(long newLimit) {
+		ensureCapacity(newLimit);
 	}
 
 	public long capacity() {
@@ -1026,7 +1050,7 @@ public abstract class TroyBuffer {
 	}
 
 	public long remaining() {
-		return this.size - this.positionRead;
+		return this.limit - this.positionRead;
 	}
 
 	/**
@@ -1045,7 +1069,7 @@ public abstract class TroyBuffer {
 
 	@Override
 	public String toString() {
-		return "TroyBuffer [positionRead=" + positionRead + ", positionWrite=" + positionWrite + ", size=" + size + ", capacity=" + capacity
+		return "TroyBuffer [positionRead=" + positionRead + ", positionWrite=" + positionWrite + ", size=" + limit + ", capacity=" + capacity
 				+ "]";
 	}
 
@@ -1078,14 +1102,161 @@ public abstract class TroyBuffer {
 			try {
 				return (T) unsafe.allocateInstance(clazz);
 			} catch (InstantiationException e) {
+				return null;// If we cannot instantiate a new object using unsafe, we have no hope...
+
 			}
+		} else {// No unsafe... So use reflection
+			try {
+				return clazz.newInstance();
+			} catch (Exception e) {
+
+			}
+			return null;
 		}
-		try {
-			return clazz.newInstance();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
+
+	/**
+	 * Writes a region of the specified file into this buffer at the specified index
+	 * 
+	 * @param index
+	 *            The index inside this buffer to begin writing to
+	 * @param file
+	 *            The file to write into this buffer
+	 * @param offset
+	 *            The offset within the file to start reading
+	 * @param length
+	 *            The length of the file to read
+	 */
+	protected abstract void writeFileImpl(long index, File file, long offset, long length) throws IOException;
+
+	/**
+	 * Writes a region of the specified file into this buffer at the specified index
+	 * 
+	 * @param index
+	 *            The index inside this buffer to begin writing to
+	 * @param file
+	 *            The file to write into this buffer
+	 * @param offset
+	 *            The offset within the file to start reading
+	 * @param length
+	 *            The length of the file to read
+	 */
+	public void writeFile(long index, File file, long offset, long length) throws IOException {
+		if (!file.exists())
+			throw new FileNotFoundException("Unable to find file " + file);
+		ensureCapacity(index + Long.BYTES + length);
+		writeLong(length);
+		writeFileImpl(index, file, offset, length);
+	}
+
+	/**
+	 * Writes the contents of the specified file into this buffer at the specified index
+	 * 
+	 * @param index
+	 *            The index inside this buffer to begin writing to
+	 * @param file
+	 *            The file to write into this buffer
+	 */
+	public void writeFile(long index, File file) throws IOException {
+		writeFile(index, file, 0, file.length());
+	}
+
+	/**
+	 * Writes the contents of the specified file into this buffer at the current write offset, advancing the write pointer
+	 * 
+	 * @param file
+	 *            The file to write
+	 */
+	public void writeFile(File file, long offset, long length) throws IOException {
+		writeFile(positionWrite, file, offset, length);
+		positionWrite += length;
+	}
+
+	/**
+	 * Writes the contents of the specified file into this buffer at the specified index
+	 * 
+	 * @param file
+	 *            The file to write
+	 */
+	public void writeFile(File file) throws IOException {
+		long length = file.length();
+		writeFile(positionWrite, file, 0, length);
+		positionWrite += length;
+	}
+
+	/**
+	 * Reads a section of this buffer starting at index and ending at index + length, and writes it to the desired file
+	 * 
+	 * @param file
+	 *            The file to write the data to
+	 * @param index
+	 *            The index to start reading the file at
+	 */
+	protected abstract void readFileImpl(File file, long index, long length) throws IOException;
+
+	/**
+	 * Reads a file stored in this buffer starting at index @code{index} and writes the data to the file specified
+	 * 
+	 * @param file
+	 *            The file to write the data to
+	 * @param index
+	 *            The index to start reading the file at
+	 */
+	public long readFile(File file, long index) throws IOException {
+		long lengthInBuffer = this.readLong(index);
+		readFileImpl(file, index + Long.BYTES, lengthInBuffer);
+		return lengthInBuffer;
+	}
+
+	/**
+	 * Reads a file stored in this buffer starting the current write pointer and writes the data to the file specified
+	 * 
+	 * @param file
+	 *            The file to write the data to
+	 */
+	public long readFile(File file) throws IOException {
+		long bytesRead = readFile(file, positionRead);
+		positionRead += bytesRead + Long.BYTES;
+		return bytesRead;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (capacity ^ (capacity >>> 32));
+		result = prime * result + (flipRead ? 1231 : 1237);
+		result = prime * result + (flipWrite ? 1231 : 1237);
+		result = prime * result + (int) (limit ^ (limit >>> 32));
+		result = prime * result + (int) (positionRead ^ (positionRead >>> 32));
+		result = prime * result + (int) (positionWrite ^ (positionWrite >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TroyBuffer other = (TroyBuffer) obj;
+		if (capacity != other.capacity)
+			return false;
+		if (flipRead != other.flipRead)
+			return false;
+		if (flipWrite != other.flipWrite)
+			return false;
+		if (limit != other.limit)
+			return false;
+		if (positionRead != other.positionRead)
+			return false;
+		if (positionWrite != other.positionWrite)
+			return false;
+		return true;
+	}
+	
+	
 
 }

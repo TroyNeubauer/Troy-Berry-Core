@@ -10,7 +10,7 @@ import com.troyberry.util.*;
 
 import sun.misc.Unsafe;
 
-@SuppressWarnings("restriction")
+@SuppressWarnings("restriction") // We use Unsafe and we want the compiler to shut up
 public final class TroyBufferUnsafe extends TroyBuffer {
 
 	protected static final Unsafe unsafe;
@@ -46,13 +46,9 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 
 	public static TroyBuffer createFromFile(File file) {
 		long size = file.length();
-		long address = unsafe.allocateMemory(size);
-		if (address == 0)
-			throw new OutOfMemoryError("Unable to allocate " + size + " bytes for file " + file + " out of off heap memory");
-		address = ncreateFromFileSubset(address, file.getPath(), size);
-		if (address == 0)
+		TroyBufferUnsafe buffer = new TroyBufferUnsafe(size);
+		if (!ncopyFileSubset(buffer.address, file.getPath(), size))
 			throw new Error("Unable to create buffer!");
-		TroyBufferUnsafe buffer = new TroyBufferUnsafe(address, size, size);
 		synchronized (buffers) {
 			buffers.add(buffer);
 		}
@@ -62,18 +58,10 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 	public static TroyBuffer createFromFile(File file, long length) {
 		long fileSize = file.length();
 		length = Math.max(fileSize, length);// Take the larger one in case length < file.length()
-		long address = unsafe.allocateMemory(length);
-
-		if (address == 0)
-			throw new OutOfMemoryError("Unable to allocate " + length + " bytes for file " + file + " out of off heap memory");
-		if (length > fileSize) {// The data after the file in memory will be uninitialized so fill it on with 0's;
-			unsafe.setMemory(address + fileSize, length - fileSize, (byte) 0);
-		}
-		address = ncreateFromFileSubset(address, file.getPath(), length);
-		if (address == 0)
+		TroyBufferUnsafe buffer = new TroyBufferUnsafe(length);
+		if (!ncopyFileSubset(buffer.address, file.getPath(), length))
 			throw new Error("Unable to create buffer!");
-		TroyBufferUnsafe buffer = new TroyBufferUnsafe(address, length, length);
-		
+
 		return buffer;
 	}
 
@@ -88,14 +76,14 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 	public static TroyBuffer createFromArray(byte[] data) {
 		TroyBufferUnsafe buffer = new TroyBufferUnsafe(data.length);
 		ncpyBytesFrom(buffer.address, data, 0, data.length);
-		buffer.size = data.length;
+		buffer.limit = data.length;
 		return buffer;
 	}
 
 	public static TroyBuffer createFromArray(byte[] data, int offset, int bytes) {
 		TroyBufferUnsafe buffer = new TroyBufferUnsafe(bytes);
 		ncpyBytesFrom(buffer.address, data, offset, bytes);
-		buffer.size = bytes;
+		buffer.limit = bytes;
 		return buffer;
 	}
 
@@ -109,6 +97,9 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 	public TroyBufferUnsafe(long size) {
 		super(size);
 		this.address = unsafe.allocateMemory(size);// Allocate the requested size and store the pointer in address (like malloc in C)
+		if (address == 0L) {
+			throw new OutOfMemoryError("Unable to create unsafe Troy Buffer! Out of memory!");
+		}
 		unsafe.setMemory(address, size, (byte) 0);// Set all allocated memory to 0 because it is uninitialized garbage
 		synchronized (buffers) {
 			buffers.add(this);
@@ -116,7 +107,7 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 	}
 
 	public void clear() {
-		this.size = 0;
+		this.limit = 0;
 		this.positionRead = 0;
 		this.positionWrite = 0;
 		unsafe.setMemory(address, capacity, (byte) 0);
@@ -136,7 +127,7 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 			unsafe.setMemory(address + capacity, newCap - capacity, (byte) 0);// Set the new memory
 			this.capacity = newCap;
 		}
-		this.size = size >= maxSize ? size : maxSize;// Inlined version of Math.max
+		this.limit = limit >= maxSize ? limit : maxSize;// Inlined version of Math.max
 	}
 
 	public void set(long offset, long length, byte b) {
@@ -295,7 +286,7 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 	@Override
 	public void writeToFile(File file) throws IOException {
 		String path = file.getAbsolutePath();
-		if (!nwriteToFile(path, address, size))
+		if (!nwriteToFile(path, address, limit))
 			throw new IOException("Unable to write to file: " + path);
 	}
 
@@ -311,8 +302,8 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 
 	public byte[] getBytes(long offset, int length) {
 		byte[] bytes = null;
-		if (size < (long) length)
-			length = (int) size;
+		if (limit < (long) length)
+			length = (int) limit;
 		bytes = new byte[length];
 		for (int i = 0; i < length; i++)
 			bytes[i] = unsafe.getByte(address + i + offset);
@@ -326,21 +317,21 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 
 	@Override
 	public void copyFrom(TroyBuffer src, long srcOffset, long destOffset, long bytes) {
-		if (srcOffset + bytes > src.size)
-			bytes = src.size - srcOffset;
+		if (srcOffset + bytes > src.limit)
+			bytes = src.limit - srcOffset;
 		ensureCapacity(destOffset + bytes);
 		nmemcpy(this.address + destOffset, src.address() + srcOffset, bytes);
 	}
 
 	@Override
 	public String toString() {
-		return "TroyBufferUnsafe [address=" + address + ", positionRead=" + positionRead + ", positionWrite=" + positionWrite + ", size=" + size
+		return "TroyBufferUnsafe [address=" + address + ", positionRead=" + positionRead + ", positionWrite=" + positionWrite + ", size=" + limit
 				+ ", capacity=" + capacity + "]";
 	}
 
 	@Override
 	public String getElements() {
-		int elements = (int) Math.min((long) Integer.MAX_VALUE, size);
+		int elements = (int) Math.min((long) Integer.MAX_VALUE, limit);
 		StringBuilder sb = new StringBuilder(elements * 6 + 2);// 6 chars per byte + 2 for []
 		sb.append('[');
 		for (int i = 0; i < elements; i++) {
@@ -479,4 +470,36 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 		ensureCapacity(readBuffer.length);
 		ncpyBytesFrom(address, readBuffer, 0, readBuffer.length);
 	}
+
+	@Override
+	protected void writeFileImpl(long index, File file, long offset, long length) throws IOException {
+		if (!ncopyFileChunk(address + index, file.getAbsolutePath(), offset, length))
+			throw new IOException(
+					"Unable to section of file index " + index + " to " + (index + length) + " to buffer index " + index + " file " + file);
+	}
+
+	@Override
+	protected void readFileImpl(File file, long index, long length) throws IOException {
+		if (!nwriteToFile(file.getAbsolutePath(), address + index, length))
+			throw new IOException(
+					"Unable to write file contained in this buffer from index " + index + " to " + (index + length) + " to dest file " + file);
+	}
+
+	@Override
+	public int hashCode() {
+		return 31 * super.hashCode() + (int) (address ^ (address >>> 32));
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (getClass() != obj.getClass())
+			return false;
+		TroyBufferUnsafe other = (TroyBufferUnsafe) obj;
+		if (address != other.address)
+			return false;
+		return super.equals(obj);
+	}
+
 }

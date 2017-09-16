@@ -35,7 +35,7 @@ public class TroySerializationFile {
 			}
 		}
 		header.copyFrom(entireFile, 0, 0, entireFile.readPosition());
-		objectBuffer.copyFrom(entireFile, entireFile.readPosition(), 0, entireFile.size() - entireFile.readPosition());
+		objectBuffer.copyFrom(entireFile, entireFile.readPosition(), 0, entireFile.limit() - entireFile.readPosition());
 	}
 
 	public <T> void write(T obj) {
@@ -95,8 +95,8 @@ public class TroySerializationFile {
 	}
 
 	public TroyBuffer getBuffer() {
-		TroyBuffer result = TroyBuffer.create(header, header.size() + objectBuffer.size());
-		result.copyFrom(objectBuffer, 0, result.size(), objectBuffer.size());
+		TroyBuffer result = TroyBuffer.create(header, header.limit() + objectBuffer.limit());
+		result.copyFrom(objectBuffer, 0, result.limit(), objectBuffer.limit());
 		return result;
 	}
 

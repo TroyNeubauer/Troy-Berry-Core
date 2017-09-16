@@ -7,8 +7,6 @@ package com.troyberry.util.serialization;
  */
 public class NativeTroyBufferUtil {
 
-	public static native void freePointers(long[] pointers, int count);
-
 	/**
 	 * Copies n bytes from the source address to the destination address<br>
 	 * Both {@code dest} and {@code src} pointers are <b>NOT</b> checked for validity! If they are null or point to 
@@ -50,24 +48,33 @@ public class NativeTroyBufferUtil {
 	public static native void ncpyDoublesTo(double[] dest, long src, int offset, int bytes, boolean swapEndianness);
 
 	// Methods for dealing with files
-	public static native boolean nwriteToFile(String fileName, long address, long length);
-
 	/**
-	 * Allocates enough memory to store length of the specified file, then loads length of the file into the memory returning the resulting pointer
-	 * @param fileName The file to load
-	 * @param length The number of bytes to read in the file
-	 * @return The pointer to the memory filled with the file or NULL if an error occurred
+	 * Copies a section of memory (address to address + length exclusive) to the file specified by {@code file}
+	 * @param file The file to write to
+	 * @param address A pointer to the start of the block of memory to copy
+	 * @param length The number of bytes to copy starting at {@code address}
+	 * @return false if writing to the file failed due to some I/O error, true if successful
 	 */
-	public static native long ncreateFromFileSubset(long address, String fileName, long length);
+	public static native boolean nwriteToFile(String file, long address, long length);
 
 	/**
-	 * Allocates enough memory to store length of the specified file, then loads length of the file into the memory returning the resulting pointer
-	 * @param fileName The file to load
+	 * Copies the specified length of the desired file into the memory starting at address {@code address}
+	 * @param address The address to copy the file to
+	 * @param file The file to load
+	 * @param length The number of bytes to read in the file
+	 * @return false if the operation failed due to some I/O error, true if successful
+	 */
+	public static native boolean ncopyFileSubset(long address, String file, long length);
+
+	/**
+	 * Copies the a chunk of the desired file to the address specified.
+	 * @param address The address to copy the file to
+	 * @param file The file to load
 	 * @param offset The number of bytes into the file to start reading
 	 * @param length The number of bytes to read in the file
-	 * @return The pointer to the memory filled with the file
+	 * @return false if the operation failed due to some I/O error, true if successful
 	 */
-	public static native long ncreateFromFileChunk(long address, String fileName, long offset, long length);
+	public static native boolean ncopyFileChunk(long address, String file, long offset, long length);
 	
 
 }

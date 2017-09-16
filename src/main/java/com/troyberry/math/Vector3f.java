@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.troyberry.util.interpolation.*;
 
-public final class Vector3f implements Interpolatable<Vector3f> {
+public class Vector3f implements Interpolatable<Vector3f> {
 
 	public static final int ELEMENTS = 3;
 	public static final int BYTES = ELEMENTS * Float.BYTES, BITS = ELEMENTS * Float.SIZE;
