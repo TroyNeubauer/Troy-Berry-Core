@@ -46,7 +46,7 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 
 	public static TroyBuffer createFromFile(File file) {
 		long size = file.length();
-		TroyBufferUnsafe buffer = new TroyBufferUnsafe(size);
+		TroyBufferUnsafe buffer = new TroyBufferUnsafe(size, size);
 		if (!ncopyFileSubset(buffer.address, file.getPath(), size))
 			throw new Error("Unable to create buffer!");
 		synchronized (buffers) {
@@ -55,15 +55,6 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 		return buffer;
 	}
 
-	public static TroyBuffer createFromFile(File file, long length) {
-		long fileSize = file.length();
-		length = Math.max(fileSize, length);// Take the larger one in case length < file.length()
-		TroyBufferUnsafe buffer = new TroyBufferUnsafe(length);
-		if (!ncopyFileSubset(buffer.address, file.getPath(), length))
-			throw new Error("Unable to create buffer!");
-
-		return buffer;
-	}
 
 	public static TroyBuffer createFromAddress(long address, long size) {
 		return createFromAddress(address, size, size);
@@ -93,14 +84,18 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 		super(size, capacity);
 		this.address = address;
 	}
+	
+	public TroyBufferUnsafe(long capacity) {
+		this(0, capacity);
+	}
 
-	public TroyBufferUnsafe(long size) {
-		super(size);
-		this.address = unsafe.allocateMemory(size);// Allocate the requested size and store the pointer in address (like malloc in C)
+	public TroyBufferUnsafe(long size, long capacity) {
+		super(size, capacity);
+		this.address = unsafe.allocateMemory(capacity);// Allocate the requested size and store the pointer in address (like malloc in C)
 		if (address == 0L) {
 			throw new OutOfMemoryError("Unable to create unsafe Troy Buffer! Out of memory!");
 		}
-		unsafe.setMemory(address, size, (byte) 0);// Set all allocated memory to 0 because it is uninitialized garbage
+		unsafe.setMemory(address, capacity, (byte) 0);// Set all allocated memory to 0 because it is uninitialized garbage
 		synchronized (buffers) {
 			buffers.add(this);
 		}
@@ -317,10 +312,22 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 
 	@Override
 	public void copyFrom(TroyBuffer src, long srcOffset, long destOffset, long bytes) {
-		if (srcOffset + bytes > src.limit)
+		System.out.println("in bytes " + bytes);
+		if (srcOffset + bytes > src.limit) {
+			System.out.println("changing");
 			bytes = src.limit - srcOffset;
+		}
+		System.out.println("after bytes " + bytes);
+		try {
+			throw new NullPointerException();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("about to go! src " + src + " this " + this + " src off " + srcOffset + " destoff " + destOffset + " bytes " + bytes);
 		ensureCapacity(destOffset + bytes);
+		System.out.println(this.address + " + " + destOffset + ", " + src.address() + " + " + srcOffset + ", " + bytes);
 		nmemcpy(this.address + destOffset, src.address() + srcOffset, bytes);
+		System.out.println("made it!!!\n\n\n\n\n\n");
 	}
 
 	@Override

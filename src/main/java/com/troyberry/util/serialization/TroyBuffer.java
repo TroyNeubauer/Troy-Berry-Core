@@ -52,12 +52,6 @@ public abstract class TroyBuffer {
 		return null;
 	}
 
-	public final static TroyBuffer create(File file, long length) {
-		if (MiscUtil.isUnsafeSupported())
-			return TroyBufferUnsafe.createFromFile(file, length);
-		return null;
-	}
-
 	public final static TroyBuffer create(TroyBuffer buffer) {
 		return create(buffer, buffer.capacity);
 	}
@@ -145,11 +139,8 @@ public abstract class TroyBuffer {
 	protected volatile long positionRead, positionWrite, limit, capacity;
 	protected boolean flipRead = ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN, flipWrite = ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN;
 
-	TroyBuffer(long size) {
-		this.positionRead = 0;
-		this.positionWrite = 0;
-		this.limit = 0;
-		this.capacity = size;
+	TroyBuffer(long capacity) {
+		this(0, capacity);
 	}
 
 	TroyBuffer(long size, long capacity) {
@@ -1069,7 +1060,7 @@ public abstract class TroyBuffer {
 
 	@Override
 	public String toString() {
-		return "TroyBuffer [positionRead=" + positionRead + ", positionWrite=" + positionWrite + ", size=" + limit + ", capacity=" + capacity
+		return "TroyBuffer [positionRead=" + positionRead + ", positionWrite=" + positionWrite + ", limit=" + limit + ", capacity=" + capacity
 				+ "]";
 	}
 

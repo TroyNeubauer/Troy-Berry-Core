@@ -1,15 +1,13 @@
 package com.troyberry.util.serialization;
 
 import java.util.*;
-import com.troyberry.util.MiscUtil;
 
-@SuppressWarnings("rawtypes")
 public class TroySerializationBank {
-	private static final ArrayList<TroySerializer> serializers;
-	private static final HashMap<Class, TroySerializer> map;
+	private static final ArrayList<TroySerializer<?>> serializers;
+	private static final HashMap<Class<?>, TroySerializer<?>> map;
 	static {
-		serializers = new ArrayList<TroySerializer>();
-		map = new HashMap<Class, TroySerializer>();
+		serializers = new ArrayList<TroySerializer<?>>();
+		map = new HashMap<Class<?>, TroySerializer<?>>();
 		Serializers.init();
 	}
 
@@ -18,15 +16,20 @@ public class TroySerializationBank {
 	}
 
 	static <T> TroySerializer<T> lookUp(Class<T> clazz) {
-		TroySerializer<T> fromMap = map.get(clazz);
+		TroySerializer<T> fromMap = (TroySerializer<T>) map.get(clazz);
 		if (fromMap != null)
 			return fromMap;
-		for (TroySerializer ser : serializers) {
-			if (MiscUtil.classSharesSuperClassOrInterface(clazz, ser.getType())) {
+		for (TroySerializer<?> ser : serializers) {
+			if (clazz == ser.getType() ||clazz.isInstance(ser.getType())) {
 				map.put(clazz, ser);
-				return ser;
+				return (TroySerializer<T>) ser;
 			}
 		}
+		return genDynamicSerializer(clazz);
+	}
+
+	private static <T> TroySerializer<T> genDynamicSerializer(Class<T> clazz) {
+
 		return null;
 	}
 }

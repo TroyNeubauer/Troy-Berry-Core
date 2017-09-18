@@ -1,6 +1,6 @@
 package com.troyberry.util.serialization;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -35,7 +35,7 @@ public class TroySerializationFile {
 			}
 		}
 		header.copyFrom(entireFile, 0, 0, entireFile.readPosition());
-		objectBuffer.copyFrom(entireFile, entireFile.readPosition(), 0, entireFile.limit() - entireFile.readPosition());
+		objectBuffer.copyFrom(entireFile, entireFile.readPosition(), 0, entireFile.remaining());
 	}
 
 	public <T> void write(T obj) {

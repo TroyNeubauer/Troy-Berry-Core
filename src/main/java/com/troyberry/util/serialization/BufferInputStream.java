@@ -21,7 +21,7 @@ public class BufferInputStream extends InputStream {
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 		if(len == 0) return 0;
-		int realLen = (int) Math.min(len, buffer.limit() - index);
+		int realLen = (int) Math.min(len, buffer.limit - index);
 		if(realLen == 0) {
 			return -1;
 		}
@@ -38,7 +38,7 @@ public class BufferInputStream extends InputStream {
 	
 	@Override
 	public synchronized void reset() throws IOException {
-		index = mark;
+		this.index = mark;
 	}
 	
 	@Override
@@ -54,8 +54,12 @@ public class BufferInputStream extends InputStream {
 	}
 	@Override
 	public int hashCode() {
-		
 		return buffer.hashCode();
 	}
 
+	@Override
+	public synchronized void mark(int readlimit) {
+		this.mark = index;
+	}
+	
 }
