@@ -89,17 +89,17 @@ public final class TroyBufferUnsafe extends AbstractTroyBuffer {
 		this.address = address;
 	}
 
-	public TroyBufferUnsafe(long limit) {
-		this(0, limit);
+	public TroyBufferUnsafe(long capacity) {
+		this(0, capacity);
 	}
 
-	public TroyBufferUnsafe(long size, long limit) {
-		super(size, limit);
-		this.address = unsafe.allocateMemory(limit);// Allocate the requested size and store the pointer in address (like malloc in C)
+	public TroyBufferUnsafe(long limit, long capacity) {
+		super(limit, capacity);
+		this.address = unsafe.allocateMemory(capacity);// Allocate the requested size and store the pointer in address (like malloc in C)
 		if (address == 0L) {
 			throw new OutOfMemoryError("Unable to create unsafe Troy Buffer! Out of memory!");
 		}
-		unsafe.setMemory(address, limit, (byte) 0);// Set all allocated memory to 0 because it is uninitialized garbage
+		unsafe.setMemory(address, capacity, (byte) 0);// Set all allocated memory to 0 because it is uninitialized garbage
 		synchronized (buffers) {
 			buffers.add(this);
 		}

@@ -1,23 +1,28 @@
 package com.troyberry.util.serialization;
 
-import java.io.File;
+import java.io.*;
 import java.nio.ByteBuffer;
 
 import com.troyberry.util.MiscUtil;
 
 public class TroyBufferCreator {
-	
+
+	private static final boolean USE_FAST = true;
+
 	public final static TroyBuffer create(long bytes) {
+		if(USE_FAST) return new TroyBufferFast(bytes);
 		if (MiscUtil.isUnsafeSupported())
 			return new TroyBufferUnsafe(bytes);
-		else
-			return new TroyBufferStandard(bytes);
+		return null;
 	}
 
 	public final static TroyBuffer create(byte[] data) {
-		if (MiscUtil.isUnsafeSupported()) {
+		if (USE_FAST)
+			return new TroyBufferFast(data);
+
+		if (MiscUtil.isUnsafeSupported())
 			return TroyBufferUnsafe.createFromArray(data);
-		}
+
 		return null;
 	}
 
@@ -31,7 +36,10 @@ public class TroyBufferCreator {
 		return result;
 	}
 
-	public final static TroyBuffer create(File file) {
+	public final static TroyBuffer create(File file) throws IOException {
+		if(USE_FAST) {
+			return new TroyBufferFast(MiscUtil.readToByteArray(file));
+		}
 		if (MiscUtil.isUnsafeSupported())
 			return TroyBufferUnsafe.createFromFile(file);
 		return null;
@@ -79,7 +87,7 @@ public class TroyBufferCreator {
 	 * @return A new TroyBuffer representing a copy of the desired ByteBuffer
 	 */
 	public static TroyBuffer createSafe(ByteBuffer buffer) {
-		TroyBuffer result = new TroyBufferStandard(buffer.limit(), buffer.capacity());
+		TroyBuffer result = new TroyBufferFast(buffer.limit(), buffer.capacity());
 		if (buffer.hasArray()) {
 			result.setFromArray(buffer.array());
 		} else {
@@ -101,13 +109,11 @@ public class TroyBufferCreator {
 	 * @return A new TroyBuffer representing a copy of the desired ByteBuffer
 	 */
 	public static TroyBuffer create(ByteBuffer buffer) {
-		AbstractTroyBuffer result;
+		TroyBuffer result;
 		if (MiscUtil.isUnsafeSupported()) {
 			if (buffer.isDirect()) {
-				result = new TroyBufferUnsafe(buffer.limit());
+				result = new TroyBufferUnsafe(buffer.capacity());
 				NativeTroyBufferUtil.nmemcpy(result.address(), MiscUtil.address(buffer), buffer.limit());
-				result.capacity = buffer.limit();
-				result.limit = buffer.limit();
 			} else {
 				result = new TroyBufferUnsafe(0);
 				if (buffer.hasArray()) {
@@ -120,7 +126,7 @@ public class TroyBufferCreator {
 			}
 
 		} else {
-			result = new TroyBufferStandard(buffer.limit(), buffer.capacity());
+			result = new TroyBufferFast(buffer.limit(), buffer.capacity());
 			if (buffer.hasArray()) {
 				result.setFromArray(buffer.array());
 			} else {

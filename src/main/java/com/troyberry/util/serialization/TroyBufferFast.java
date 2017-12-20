@@ -16,9 +16,20 @@ public class TroyBufferFast implements TroyBuffer {
 		this(128);
 	}
 
-	public TroyBufferFast(int capacity) {
+	public TroyBufferFast(long capacity) {
+		this.buffer = new byte[(int) capacity];
+		this.capacity = (int) capacity;
+	}
+
+	public TroyBufferFast(byte[] data) {
+		this.buffer = Arrays.copyOf(data, data.length);
+		this.capacity = buffer.length;
+		this.limit = data.length;
+	}
+
+	public TroyBufferFast(int limit, int capacity) {
 		this.buffer = new byte[capacity];
-		this.capacity = 0;
+		this.limit = limit;
 	}
 
 	@Override
@@ -662,14 +673,8 @@ public class TroyBufferFast implements TroyBuffer {
 
 	@Override
 	public void copyFrom(TroyBuffer src, long srcOffset, long destOffset, long bytes) {
-		if (src instanceof TroyBufferFast || src instanceof TroyBufferStandard) {
-			byte[] srcData;
-			if (src instanceof TroyBufferFast) {
-				srcData = ((TroyBufferFast) src).buffer;
-			} else {
-				srcData = ((TroyBufferStandard) src).data;
-			}
-			System.arraycopy(srcData, (int) srcOffset, this.buffer, (int) destOffset, (int) bytes);
+		if (src instanceof TroyBufferFast) {
+			System.arraycopy(((TroyBufferFast) src).buffer, (int) srcOffset, this.buffer, (int) destOffset, (int) bytes);
 		} else {
 			int destOffsetInt = (int) destOffset;
 			for (int i = (int) 0; i < bytes; i++) {

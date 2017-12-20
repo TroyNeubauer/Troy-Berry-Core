@@ -11,20 +11,21 @@ public class LibraryUtils {
 
 	public static final String LIBRARY_NAME = System.getProperty("os.arch").contains("64") ? "troyberry" : "troyberry32";
 	public static final String REAL_LIBRARY_NAME = System.mapLibraryName(LIBRARY_NAME);
+	public static final String LIBRARY_FILE_OVERRIDE = "TBNativeLib";
 	private static boolean loaded = false;
 
 	static {
 
 		InternalLog.println("\tOS: " + System.getProperty("os.name") + " v" + System.getProperty("os.version"));
 		InternalLog.println("\tJRE: " + System.getProperty("java.version") + " " + System.getProperty("os.arch"));
-		InternalLog.println("\tJVM: " + System.getProperty("java.vm.name") + " v" + System.getProperty("java.vm.version") + " by "
-				+ System.getProperty("java.vm.vendor"));
+		InternalLog.println("\tJVM: " + System.getProperty("java.vm.name") + " v" + System.getProperty("java.vm.version") + " by " + System.getProperty("java.vm.vendor"));
 
 		InternalLog.println("Attempting to load TroyBerry native library");
 		try {
+			loadFromExplictFile();
 			loadFromJavaLibPath();
 			loadFromClassPath();
-			if(true) loadFromStream(new FileInputStream(new File("D:/Java/Current Projects/Troy Berry Core/src/main/resources/troyberry.dll")), "raw (bad)");
+			loadFromStream(new FileInputStream(new File("D:/Java/Current Projects/Troy Berry Core/src/main/resources/troyberry.dll")), "raw (bad)");
 			try {
 				File file = new File(LibraryUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
 				if (file != null && file.isFile()) {
@@ -37,7 +38,7 @@ public class LibraryUtils {
 		} catch (Throwable t) {
 			loaded = false;
 		}
-		if(!loaded) {
+		if (!loaded) {
 			InternalLog.println("[SEVERE] Failed to load TroyBerry native library!!!!");
 			InternalLog.println("[SEVERE] This will most likley result in errors later when native methods are called!!!");
 			System.err.println("[Troy Berry] [SEVERE] Failed to load TroyBerry native library");
@@ -55,6 +56,23 @@ public class LibraryUtils {
 		return loaded;
 	}
 
+	private static void loadFromExplictFile() {
+		if (loaded)
+			return;
+		if (System.getProperty(LIBRARY_FILE_OVERRIDE) == null) {
+			InternalLog.println("No explicit library specified");
+		} else {
+			String value = System.getProperty(LIBRARY_FILE_OVERRIDE);
+			InternalLog.println("Attempting to load file " + value);
+			try {
+				System.load(value);
+				InternalLog.println("Successfully loaded native lib from file: " + value +"!");
+			} catch (Exception e) {
+				InternalLog.println("Unable to load native lib from file: " + value +" Error " + MiscUtil.getStackTrace(e));
+			}
+		}
+	}
+
 	private static void loadFromStream(InputStream stream, String method) {
 		if (loaded)
 			return;
@@ -63,8 +81,8 @@ public class LibraryUtils {
 			try {
 				libraryFile = File.createTempFile(LIBRARY_NAME, null);// Create a temp file to copy the native lib inside the jar to
 			} catch (Throwable t) {
-				throw new UnsatisfiedLinkError("Unable to load libary " + REAL_LIBRARY_NAME
-						+ " from stream because the temp directory creation failed(" + method + ")\"\n" + MiscUtil.getStackTrace(t));
+				throw new UnsatisfiedLinkError(
+						"Unable to load libary " + REAL_LIBRARY_NAME + " from stream because the temp directory creation failed(" + method + ")\"\n" + MiscUtil.getStackTrace(t));
 			}
 			try {
 				FileOutputStream dest = new FileOutputStream(libraryFile);
@@ -73,8 +91,7 @@ public class LibraryUtils {
 				dest.getChannel().force(true);// To ensure that System.load() doesn't get angry that "another process is using the file..."
 				dest.close();
 			} catch (Throwable t) {
-				throw new UnsatisfiedLinkError("Unable to load libary " + REAL_LIBRARY_NAME
-						+ " from stream because copying to the temp file failed!(" + method + ")\"\n" + MiscUtil.getStackTrace(t));
+				throw new UnsatisfiedLinkError("Unable to load libary " + REAL_LIBRARY_NAME + " from stream because copying to the temp file failed!(" + method + ")\"\n" + MiscUtil.getStackTrace(t));
 			}
 			try {
 				System.load(libraryFile.getAbsolutePath());// Give the temp file to System.load to attempt to load it
@@ -98,7 +115,7 @@ public class LibraryUtils {
 			ZipFile zip = new ZipFile(file);// Create a zip file object from the file so we can look at the entries
 			ZipEntry entry = zip.getEntry(REAL_LIBRARY_NAME);// Grab the entry with the file name we want
 			if (entry == null) {// zip.getEntry will return null if the desired file name is not found so throw an exception if the entry is null
-				zip.close();//Close the zip file because the other line wont get executed
+				zip.close();// Close the zip file because the other line wont get executed
 				throw new FileNotFoundException("Unable to find file " + REAL_LIBRARY_NAME + " in zip file " + file);
 			}
 			InternalLog.println("Found TroyBerry native library in zip file (" + entry + ") last modified " + new SimpleDateFormat().format(new Date(entry.getLastModifiedTime().toMillis())));
@@ -123,7 +140,7 @@ public class LibraryUtils {
 		} catch (Throwable t) {
 			InternalLog.println("Failed to load TroyBerry native library from java.library.path");
 		} finally {
-			if(change) {
+			if (change) {
 				System.setProperty("java.library.path", value);
 			}
 		}

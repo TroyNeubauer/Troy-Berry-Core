@@ -55,7 +55,7 @@ public class Executor {
 	/**
 	 * This method will wait and only return once all tasks are complete. This method will automatically call update so that 
 	 * queued tasks will be assigned and completed automatically.<br>
-	 * If you want to see weather or not tasks are finished and have the method return instantly, {@link Executor#allTasksFinished()}
+	 * If you want to see weather or not tasks are finished and have the method return asynchronously, {@link Executor#allTasksFinished()}
 	 * does exactly that
 	 */
 	public void waitForTasksAllTasksToComplete() {
@@ -93,7 +93,7 @@ public class Executor {
 		// We have tasks that need to be done
 		if (awaitingTasks.size() > 0) {
 			for (Processor p : processors) {
-				if (p.workingOnTask.get() == false) {
+				if (!p.workingOnTask.get()) {
 					if (awaitingTasks.size() > 0) p.setTask(awaitingTasks.removeFirst());
 				}
 			}
