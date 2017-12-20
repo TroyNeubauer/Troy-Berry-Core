@@ -807,6 +807,11 @@ public abstract class AbstractTroyBuffer implements TroyBuffer {
 	}
 
 	@Override
+	public boolean canRead() {
+		return positionRead < limit;
+	}
+	
+	@Override
 	public String toString() {
 		return "TroyBuffer [positionRead=" + positionRead + ", positionWrite=" + positionWrite + ", limit=" + limit + ", capacity=" + capacity + "]";
 	}
@@ -825,24 +830,6 @@ public abstract class AbstractTroyBuffer implements TroyBuffer {
 
 	public ByteOrder getWriteOrder() {
 		return flipWrite ? (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN) : ByteOrder.nativeOrder();
-	}
-
-	public static <T> T newInstance(Class<T> clazz) {
-		if (MiscUtil.isUnsafeSupported()) {
-			try {
-				return (T) unsafe.allocateInstance(clazz);// Casting is ok since allocateInstance always returns an instance of clazz, or fails
-			} catch (InstantiationException e) {
-				return null;// If we cannot instantiate a new object using unsafe, we have no hope...
-
-			}
-		} else {// No unsafe... So use reflection
-			try {
-				return clazz.newInstance();
-			} catch (Exception e) {
-
-			}
-			return null;
-		}
 	}
 
 	@Override

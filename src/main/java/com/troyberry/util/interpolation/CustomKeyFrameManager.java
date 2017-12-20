@@ -3,7 +3,7 @@ package com.troyberry.util.interpolation;
 import java.util.Map.Entry;
 
 import com.troyberry.math.Maths;
-import com.troyberry.util.serialization.AbstractTroyBuffer;
+import com.troyberry.util.serialization.TroyBuffer;
 
 public class CustomKeyFrameManager<T extends Interpolatable<T>> extends KeyFrameMaster<T> {
 	
@@ -26,7 +26,7 @@ public class CustomKeyFrameManager<T extends Interpolatable<T>> extends KeyFrame
 	}
 
 	@Override
-	public void write(AbstractTroyBuffer writer) {
+	public void write(TroyBuffer writer) {
 		//No op
 	}
 

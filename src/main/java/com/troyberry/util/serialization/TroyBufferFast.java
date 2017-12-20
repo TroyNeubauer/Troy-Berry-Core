@@ -8,7 +8,7 @@ import com.troyberry.util.*;
 
 public class TroyBufferFast implements TroyBuffer {
 
-	private byte[] buffer;
+	byte[] buffer;
 	private int positionRead, positionWrite, limit, capacity;
 	protected boolean bigRead = true, bigWrite = true;
 
@@ -58,7 +58,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeByte(byte b) {
+	public final void writeByte(byte b) {
 		if (positionWrite + Byte.BYTES > capacity) {
 			resize(positionWrite + Byte.BYTES);
 		}
@@ -67,7 +67,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeByte(long index, byte value) {
+	public final void writeByte(long index, byte value) {
 		int intIndex = (int) index;
 		if (intIndex + Byte.BYTES > capacity) {
 			resize(intIndex + Byte.BYTES);
@@ -77,7 +77,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeChar(char value) {
+	public final void writeChar(char value) {
 		if (positionWrite + Character.BYTES > capacity) {
 			resize(positionWrite + Character.BYTES);
 		}
@@ -93,7 +93,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeChar(long index, char value) {
+	public final void writeChar(long index, char value) {
 		final int intIndex = (int) index;
 		if (intIndex + Character.BYTES > capacity) {
 			resize(intIndex + Character.BYTES);
@@ -110,7 +110,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeShort(short value) {
+	public final void writeShort(short value) {
 		if (positionWrite + Short.BYTES > capacity) {
 			resize(positionWrite + Short.BYTES);
 		}
@@ -126,7 +126,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeShort(long index, short value) {
+	public final void writeShort(long index, short value) {
 		final int intIndex = (int) index;
 		if (intIndex + Short.BYTES > capacity) {
 			resize(intIndex + Short.BYTES);
@@ -143,7 +143,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeUnsignedShort(int value) {
+	public final void writeUnsignedShort(int value) {
 		if (positionWrite + Short.BYTES > capacity) {
 			resize(positionWrite + Short.BYTES);
 		}
@@ -159,7 +159,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeUnsignedShort(long index, int value) {
+	public final void writeUnsignedShort(long index, int value) {
 		final int intIndex = (int) index;
 		if (intIndex + Short.BYTES > capacity) {
 			resize(intIndex + Short.BYTES);
@@ -176,7 +176,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeInt(int value) {
+	public final void writeInt(int value) {
 		if (positionWrite + Integer.BYTES > capacity) {
 			resize(positionWrite + Integer.BYTES);
 		}
@@ -196,7 +196,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeInt(long index, int value) {
+	public final void writeInt(long index, int value) {
 		final int intIndex = (int) index;
 		if (intIndex + Integer.BYTES > capacity) {
 			resize(intIndex + Integer.BYTES);
@@ -217,7 +217,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeLong(long value) {
+	public final void writeLong(long value) {
 		if (positionWrite + Long.BYTES > capacity) {
 			resize(positionWrite + Long.BYTES);
 		}
@@ -245,7 +245,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeLong(long index, long value) {
+	public final void writeLong(long index, long value) {
 		final int intIndex = (int) index;
 		if (intIndex + Long.BYTES > capacity) {
 			resize(intIndex + Long.BYTES);
@@ -274,27 +274,27 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeFloat(float value) {
+	public final void writeFloat(float value) {
 		writeInt(Float.floatToRawIntBits(value));
 	}
 
 	@Override
-	public void writeFloat(long index, float value) {
+	public final void writeFloat(long index, float value) {
 		writeInt(index, Float.floatToRawIntBits(value));
 	}
 
 	@Override
-	public void writeDouble(double value) {
+	public final void writeDouble(double value) {
 		writeLong(Double.doubleToRawLongBits(value));
 	}
 
 	@Override
-	public void writeDouble(long index, double value) {
+	public final void writeDouble(long index, double value) {
 		writeLong(index, Double.doubleToRawLongBits(value));
 	}
 
 	@Override
-	public void writeString(String value) {
+	public final void writeString(String value) {
 		char[] chars = value.toCharArray();
 		if (Byte.BYTES + Integer.BYTES + chars.length * Character.BYTES > capacity) {
 			resize(Byte.BYTES + Integer.BYTES + chars.length * Character.BYTES + positionWrite);
@@ -353,7 +353,7 @@ public class TroyBufferFast implements TroyBuffer {
 		}
 	}
 
-	public void writeString(long index, String str) {
+	public final void writeString(long index, String str) {
 		int intIndex = (int) index;
 		char[] chars = str.toCharArray();
 		if (Byte.BYTES + Integer.BYTES + chars.length * Character.BYTES > capacity) {
@@ -594,12 +594,12 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void readPosition(long positionRead) {
+	public final void readPosition(long positionRead) {
 		this.positionRead = (int) positionRead;
 	}
 
 	@Override
-	public void writePosition(long positionWrite) {
+	public final void writePosition(long positionWrite) {
 		this.positionWrite = (int) positionWrite;
 	}
 
@@ -632,7 +632,7 @@ public class TroyBufferFast implements TroyBuffer {
 	}
 
 	@Override
-	public void writeToFile(File file) throws IOException {
+	public final void writeToFile(File file) throws IOException {
 		FileOutputStream stream = new FileOutputStream(file);
 		stream.write(buffer, 0, limit);
 		stream.close();
@@ -640,13 +640,12 @@ public class TroyBufferFast implements TroyBuffer {
 
 	@Override
 	public byte[] getBytes() {
-
 		return getBytes(0, limit);
 	}
 
 	@Override
 	public byte[] getBytes(long offset, int length) {
-		if (length > limit)
+		if (offset + length > limit)
 			throw new IndexOutOfBoundsException("length is greater than the limit! Length " + length + " limit " + limit);
 		return Arrays.copyOfRange(buffer, (int) offset, (int) (offset + length));
 	}
@@ -669,6 +668,11 @@ public class TroyBufferFast implements TroyBuffer {
 	@Override
 	public long remainingRead() {
 		return limit - positionRead;
+	}
+
+	@Override
+	public boolean canRead() {
+		return positionRead < limit;
 	}
 
 	@Override

@@ -10,7 +10,8 @@ public class TroyBufferCreator {
 	private static final boolean USE_FAST = true;
 
 	public final static TroyBuffer create(long bytes) {
-		if(USE_FAST) return new TroyBufferFast(bytes);
+		if (USE_FAST)
+			return new TroyBufferFast(bytes);
 		if (MiscUtil.isUnsafeSupported())
 			return new TroyBufferUnsafe(bytes);
 		return null;
@@ -26,18 +27,14 @@ public class TroyBufferCreator {
 		return null;
 	}
 
-	public final static TroyBuffer create(byte[] data, int length) {
+	public final static TroyBuffer create(byte[] data, long length) {
 		TroyBuffer result = create(length);
-		for (int i = 0; i < length; i++) {
-			result.writeByte(data[i]);
-		}
-		result.readPosition(0);
-		result.writePosition(0);
+		result.setFromArray(data);
 		return result;
 	}
 
 	public final static TroyBuffer create(File file) throws IOException {
-		if(USE_FAST) {
+		if (USE_FAST) {
 			return new TroyBufferFast(MiscUtil.readToByteArray(file));
 		}
 		if (MiscUtil.isUnsafeSupported())
@@ -63,10 +60,19 @@ public class TroyBufferCreator {
 		return null;
 	}
 
-	public static AbstractTroyBuffer create(AbstractTroyBuffer src, long offset, long length) {
-		AbstractTroyBuffer result = null;
-		if (MiscUtil.isUnsafeSupported()) {
-			long bytes = length - offset;
+	public static TroyBuffer create(TroyBuffer src, long offset, long length) {
+		TroyBuffer result = null;
+		long bytes = length - offset;
+		if (USE_FAST) {
+			result = new TroyBufferFast();
+			if(src instanceof TroyBufferFast) {
+				result.setFromArray(((TroyBufferFast)src).buffer);
+			} else {
+				for(long i = offset; i < length + offset; i++) {
+					result.writeByte(i - offset, src.readByte(i));
+				}
+			}
+		} else if (MiscUtil.isUnsafeSupported()) {
 			result = new TroyBufferUnsafe(bytes, bytes);
 			if (src instanceof TroyBufferUnsafe) {
 				NativeTroyBufferUtil.nmemcpy(result.address(), src.address() + offset, bytes);

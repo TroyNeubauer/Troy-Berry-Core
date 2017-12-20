@@ -434,6 +434,12 @@ public interface TroyBuffer {
 	 * @return The number of bytes between the read pointer and this buffer's limit
 	 */
 	public long remainingRead();
+	
+	/**
+	 * Returns {@code true} if there are more bytes between the readers position and this buffer's limit and {@code false} otherwise
+	 * @return If more data can be read
+	 */
+	public boolean canRead();
 
 	/**
 	 * Copies data from another buffer to this one

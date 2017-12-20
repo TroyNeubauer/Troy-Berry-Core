@@ -2,12 +2,9 @@ package com.troyberry.color;
 
 import java.awt.Color;
 
-import com.troyberry.math.Maths;
-import com.troyberry.math.Vector3f;
-import com.troyberry.math.Vector4f;
+import com.troyberry.math.*;
 import com.troyberry.util.interpolation.*;
-import com.troyberry.util.serialization.AbstractTroyBuffer;
-import com.troyberry.util.serialization.TroySerializable;
+import com.troyberry.util.serialization.*;
 
 /**
  * Represents an RGB color with or without transparency. The maxiumn depth for this representation of a color is 8 bits.<br>
@@ -175,13 +172,13 @@ public class TroyColor implements Interpolatable<TroyColor>, TroySerializable {
 	}
 
 	@Override
-	public void read(AbstractTroyBuffer buffer) {
+	public void read(TroyBuffer buffer) {
 		this.format = RGBColorFormat.getFormat(buffer.readByte());
 		this.color = buffer.readInt();
 	}
 
 	@Override
-	public void write(AbstractTroyBuffer buffer) {
+	public void write(TroyBuffer buffer) {
 		buffer.writeByte((byte) format.ordinal());
 		buffer.writeInt(color);
 	}
