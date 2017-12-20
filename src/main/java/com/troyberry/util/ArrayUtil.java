@@ -11,6 +11,7 @@ public class ArrayUtil {
 		int aLen = a.length;
 		int bLen = b.length;
 
+		@SuppressWarnings("unchecked")
 		T[] c = (T[]) Array.newInstance(a.getClass().getComponentType(), aLen + bLen);
 		System.arraycopy(a, 0, c, 0, aLen);
 		System.arraycopy(b, 0, c, aLen, bLen);
@@ -170,7 +171,7 @@ public class ArrayUtil {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
 		for (int i = 0; i < bytes.length; i++) {
-			sb.append(StringFormatter.byteToBinaryString(bytes[i]));
+			sb.append(StringFormatter.toBinaryString(bytes[i]));
 			if (i != bytes.length - 1)
 				sb.append(", ");
 		}

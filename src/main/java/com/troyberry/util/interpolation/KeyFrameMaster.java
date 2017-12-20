@@ -2,7 +2,7 @@ package com.troyberry.util.interpolation;
 
 import java.util.*;
 
-import com.troyberry.util.serialization.TroyBuffer;
+import com.troyberry.util.serialization.AbstractTroyBuffer;
 
 public abstract class KeyFrameMaster<T> {
 
@@ -30,7 +30,7 @@ public abstract class KeyFrameMaster<T> {
 
 	public abstract T getValue(double position);
 	
-	public abstract void write(TroyBuffer writer);
+	public abstract void write(AbstractTroyBuffer writer);
 	
 	public void setInterpolationTypeType(InterpolationType type) {
 		this.type = type;

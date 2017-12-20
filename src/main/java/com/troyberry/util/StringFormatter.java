@@ -115,9 +115,9 @@ public class StringFormatter {
 	 *            The byte to be molded after
 	 * @return The formatted String
 	 */
-	public static String byteToBinaryString(byte b) {
+	public static String toBinaryString(byte b) {
 		String result = "";
-		for (int i = 7; i >= 0; i--) {
+		for (int i = Byte.SIZE - 1; i >= 0; i--) {
 			result += ((b >> i) & 0b00000001);
 		}
 		return result;
@@ -134,14 +134,38 @@ public class StringFormatter {
 	 *            The long to be molded after
 	 * @return The formatted String
 	 */
-	public static String longToBinaryString(long l) {
+	public static String toBinaryString(long l) {
 		String result = "";
 		for (int i = Long.SIZE - 1; i >= 0; i--) {
 			result += ((l >> i) & 0b1);
 		}
 		return result;
 	}
+	
+	public static String toBinaryString(int i) {
+		String result = "";
+		for (int loopCtr = Integer.SIZE - 1; loopCtr >= 0; loopCtr--) {
+			result += ((i >> loopCtr) & 0b1);
+		}
+		return result;
+	}
 
+	public static String toBinaryString(short s) {
+		String result = "";
+		for (int loopCtr = Integer.SIZE - 1; loopCtr >= 0; loopCtr--) {
+			result += ((s >> loopCtr) & 0b1);
+		}
+		return result;
+	}
+	
+	public static String toBinaryString(char c) {
+		String result = "";
+		for (int loopCtr = Integer.SIZE - 1; loopCtr >= 0; loopCtr--) {
+			result += ((c >> loopCtr) & 0b1);
+		}
+		return result;
+	}
+	
 	/**
 	 * Ensures that a particular String is always a certain length by adding
 	 * whitespace at the end or trimming to a shorter length<br>

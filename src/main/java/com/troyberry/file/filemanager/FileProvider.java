@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import com.troyberry.internal.InternalLog;
 import com.troyberry.util.*;
-import com.troyberry.util.serialization.TroyBuffer;
+import com.troyberry.util.serialization.*;
 
 @SuppressWarnings("rawtypes")
 public abstract class FileProvider<IOType extends IOBase, FileType extends FileBase> {
@@ -30,7 +30,7 @@ public abstract class FileProvider<IOType extends IOBase, FileType extends FileB
 	}
 
 	public void write(File dest, FileType file, byte major, byte minor, byte patch) throws IOException {
-		TroyBuffer buffer = TroyBuffer.create();
+		TroyBuffer buffer = TroyBufferCreator.create();
 		IOType io = getIO(major, minor, patch);
 		if (io == null)
 			return;
@@ -39,7 +39,7 @@ public abstract class FileProvider<IOType extends IOBase, FileType extends FileB
 	}
 
 	public void write(File dest, FileType file) throws IOException {
-		TroyBuffer buffer = TroyBuffer.create();
+		TroyBuffer buffer = TroyBufferCreator.create();
 		getMostRecentIO().write(buffer, file);
 		buffer.writeToFile(dest);
 	}
@@ -48,7 +48,7 @@ public abstract class FileProvider<IOType extends IOBase, FileType extends FileB
 		if (!isValidFile(file))
 			throw new InvalidFileException("Invalid file!");
 		Version version = getVersion(file);
-		return (FileType) getIO(version).read(TroyBuffer.create(file));
+		return (FileType) getIO(version).read(TroyBufferCreator.create(file));
 	}
 
 	public FileType read(File file) throws IOException, InvalidFileException {

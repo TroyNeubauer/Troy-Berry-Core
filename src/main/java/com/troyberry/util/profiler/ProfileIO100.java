@@ -7,7 +7,7 @@ import com.troyberry.file.filemanager.*;
 import com.troyberry.util.data.*;
 import com.troyberry.util.serialization.*;
 
-public class ProfileIO100 implements ProfileIO {
+public class ProfileIO100 extends ProfileIO {
 
 	public ProfileIO100() {
 	}

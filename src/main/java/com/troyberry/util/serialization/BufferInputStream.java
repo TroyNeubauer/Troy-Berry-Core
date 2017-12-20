@@ -4,10 +4,10 @@ import java.io.*;
 
 public class BufferInputStream extends InputStream {
 	
-	private TroyBuffer buffer;
+	private AbstractTroyBuffer buffer;
 	private long index, mark = 0;
 
-	public BufferInputStream(TroyBuffer buffer) {
+	public BufferInputStream(AbstractTroyBuffer buffer) {
 		this.buffer = buffer;
 		this.index = 0;
 	}

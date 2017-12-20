@@ -29,6 +29,6 @@ public interface IOBase<FileType extends FileBase> {
 	 */
 	public void write(TroyBuffer buffer, FileType data) throws IOException;
 	
-	public void writeHeader(TroyBuffer writer, int major, int minor, int patch);
+	public void writeHeader(TroyBuffer buffer, int major, int minor, int patch);
 
 }

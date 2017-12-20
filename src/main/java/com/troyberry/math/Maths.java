@@ -12,11 +12,9 @@ import com.troyberry.util.interpolation.Range;
 public class Maths {
 
 	private static Random random = new Random();
-	/** PI as a float to the 23rd decimal */
+	/** PI as a float */
 	public static final float PI = 3.14159265358979323846264f;
-	/** PI as a float to the 5th decimal to save time in calculations that don't need to be super accurate <br>
-	 * For the a more accurate PI as a float {@link Maths#PI}*/
-	public static final float SHORT_PI = 3.14159f;
+	
 	/** 2 * PI */
 	public static final float PI2 = PI * 2.0f;
 	public static final double FLOAT_ROUNDING_ERROR = 0.00001f;
@@ -131,7 +129,12 @@ public class Maths {
 		float n = normalize(sourceMin, sourceMax, value);
 		return lerp(destMin, destMax, n);
 	}
-
+	
+	public static double map(double value, double sourceMin, double sourceMax, double destMin, double destMax) {
+		double n = normalize(sourceMin, sourceMax, value);
+		return lerp(destMin, destMax, n);
+	}
+	
 	public static int normalize(int min, int max, int value) {
 		return (value - min) / (max - min);
 	}
@@ -678,11 +681,11 @@ public class Maths {
 	 * "PI" returns 3.141592653589793<br>
 	 * "(4/3) * PI * 10^3" (the volume of a radius 10 sphere) returns 4188.79<br>
 	 * "75 + (3-2)^6 * sin90" returns 76.0<br>
-	 * @param e The expression to parse
+	 * @param expression The expression to parse
 	 * @return The result of the expression with
 	 * @throws NumberFormatException If the 
 	 */
-	public static double evaluate(String expression, boolean degrees) throws NumberFormatException {
+	public static double evaluate(String expression, final boolean degrees) throws NumberFormatException {
 		String pi = Double.toString(Math.PI);
 		String constantE = Double.toString(Math.E);
 

@@ -3,7 +3,19 @@ package com.troyberry.util.interpolation;
 import com.troyberry.math.*;
 
 public enum InterpolationType {
-	LINEAR((a, b, f) -> Maths.lerp(a, b, f), 0), COSINE((a, b, f) -> Maths.cerp(a, b, f), LINEAR.id + 1);
+	LINEAR(new DoAction(){
+
+        @Override
+        public double doAction(double a, double b, double f) {
+            return Maths.lerp(a, b, f);
+        }
+    }), COSINE(new DoAction(){
+
+        @Override
+        public double doAction(double a, double b, double f) {
+            return Maths.cerp(a, b, f);
+        }
+    });
 
 	public double interpolate(double a, double b, double f) {
 		return this.action.doAction(a, b, f);
@@ -12,9 +24,9 @@ public enum InterpolationType {
 	private final DoAction action;
 	private final int id;
 
-	InterpolationType(DoAction action, int id) {
+	InterpolationType(DoAction action) {
 		this.action = action;
-		this.id = id;
+		this.id = this.ordinal();
 	}
 	
 	public static InterpolationType getType(int id) {

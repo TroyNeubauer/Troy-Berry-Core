@@ -24,6 +24,7 @@ public class LibraryUtils {
 		try {
 			loadFromJavaLibPath();
 			loadFromClassPath();
+			if(true) loadFromStream(new FileInputStream(new File("D:/Java/Current Projects/Troy Berry Core/src/main/resources/troyberry.dll")), "raw (bad)");
 			try {
 				File file = new File(LibraryUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
 				if (file != null && file.isFile()) {
@@ -112,12 +113,19 @@ public class LibraryUtils {
 		if (loaded)
 			return true;
 		InternalLog.println("Attempting to load TroyBerry native library from java.library.path");
+		String value = System.getProperty("java.library.path");
+		System.setProperty("java.library.path", "D:\\Java\\Current Projects\\Troy Berry Core\\src\\main\\resources\\");
+		boolean change = true;
 		try {
 			System.loadLibrary(LIBRARY_NAME);
 			loaded = true;
 			InternalLog.println("Successfully loaded TroyBerry native library from java.library.path");
 		} catch (Throwable t) {
 			InternalLog.println("Failed to load TroyBerry native library from java.library.path");
+		} finally {
+			if(change) {
+				System.setProperty("java.library.path", value);
+			}
 		}
 		return loaded;
 	}

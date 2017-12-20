@@ -63,7 +63,7 @@ public class BitBuilder {
 
 	@Override
 	public String toString() {
-		return "Bit Builder [" + StringFormatter.longToBinaryString(currentByte) + "]";
+		return "Bit Builder [" + StringFormatter.toBinaryString(currentByte) + "]";
 	}
 
 	public int first32() {

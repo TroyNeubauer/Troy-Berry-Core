@@ -19,7 +19,7 @@ public class MiscUtil {
 
 	private static final Unsafe unsafe = retriveUnsafe();
 
-	private static final String UNSAFE_CLASS = "sun.misc.Unsafe";
+	private static final String UNSAFE_CLASS = "sun.misc.Unsafe", DISABLE_UNSAFE_ARG = "TBDisableUnsafe";
 
 	private static final long NIO_BUFFER_ADDRESS_OFFSET = findBufferAddress();
 
@@ -49,13 +49,16 @@ public class MiscUtil {
 
 	/**
 	 * Returns an Enum object representing the enum declared in class {@code class} with the ordinal {@code ordinal}
-	 * @param clazz The class to look in. Must be an enum class
-	 * @param ordinal The ordinal of the enum to look for
-	 * @return the enum declared in class {@code class} with the ordinal {@code ordinal}
-	 * {@link Enum#ordinal()}<br>
-	 * {@link Enum}
+	 * 
+	 * @param clazz
+	 *            The class to look in. Must be an enum class
+	 * @param ordinal
+	 *            The ordinal of the enum to look for
+	 * @return the enum declared in class {@code class} with the ordinal {@code ordinal} {@link Enum#ordinal()}<br>
+	 *         {@link Enum}
 	 */
-	public static <T> T getEnum(Class<T> clazz, byte ordinal) {
+	@SuppressWarnings("unchecked")
+	public static <T> T getEnum(Class<T> clazz, int ordinal) {
 		assert clazz.isEnum();
 		try {
 			Method m = clazz.getDeclaredMethod("values");
@@ -156,7 +159,109 @@ public class MiscUtil {
 		return sbuf.toString();
 	}
 
+	/**
+	 * Gets the class for a signature (only handles one signature at a time)
+	 * 
+	 * @param signature
+	 *            The signature
+	 * @return The class representing the specified signature
+	 * @throws ClassNotFoundException
+	 */
+	public static Class<?> getClassFromSignature(String signature) throws ClassNotFoundException {
+		if (signature.isEmpty())
+			throw new IllegalArgumentException("Signature cannot be empty!");
+		if (signature.charAt(0) == '[') {
+			if (signature.contains("L"))
+				return Array.newInstance(Class.forName(signature.substring(1, signature.length()).replace("/", ".")), 1).getClass();
+			int arrayDimensions = signature.lastIndexOf('[') + 1;
+			char type = signature.charAt(signature.length() - 1);
+			if (arrayDimensions == 1) {
+				if (type == 'B')
+					return byte[].class;
+				if (type == 'S')
+					return short[].class;
+				if (type == 'C')
+					return char[].class;
+				if (type == 'I')
+					return int[].class;
+				if (type == 'J')
+					return long[].class;
+				if (type == 'F')
+					return float[].class;
+				if (type == 'D')
+					return double[].class;
+				if (type == 'Z')
+					return boolean[].class;
+			} else if (arrayDimensions == 2) {
+				if (type == 'B')
+					return byte[][].class;
+				if (type == 'S')
+					return short[][].class;
+				if (type == 'C')
+					return char[][].class;
+				if (type == 'I')
+					return int[][].class;
+				if (type == 'J')
+					return long[][].class;
+				if (type == 'F')
+					return float[][].class;
+				if (type == 'D')
+					return double[][].class;
+				if (type == 'Z')
+					return boolean[][].class;
+			} else if (arrayDimensions == 3) {
+				if (type == 'B')
+					return byte[][][].class;
+				if (type == 'S')
+					return short[][][].class;
+				if (type == 'C')
+					return char[][][].class;
+				if (type == 'I')
+					return int[][][].class;
+				if (type == 'J')
+					return long[][][].class;
+				if (type == 'F')
+					return float[][][].class;
+				if (type == 'D')
+					return double[][][].class;
+				if (type == 'Z')
+					return boolean[][][].class;
+			} else {
+				throw new ClassNotFoundException("MiscUtil cannot find primitive array classes with more that 3 dimensions");
+			}
+
+		} else {
+			if (signature.contains("L"))
+				return Class.forName(signature.substring(1, signature.length() - 1).replace("/", "."));
+			char type = signature.charAt(0);
+			if (type == 'B')
+				return byte.class;
+			if (type == 'S')
+				return short.class;
+			if (type == 'C')
+				return char.class;
+			if (type == 'I')
+				return int.class;
+			if (type == 'J')
+				return long.class;
+			if (type == 'F')
+				return float.class;
+			if (type == 'D')
+				return double.class;
+			if (type == 'Z')
+				return boolean.class;
+			if (type == 'V')
+				return void.class;
+		}
+		return null;
+	}
+
 	private static Unsafe retriveUnsafe() {
+		String disableUnsafe = System.getProperty(DISABLE_UNSAFE_ARG, "false");
+		if(disableUnsafe.equals("true") || disableUnsafe.equals("t") || disableUnsafe.equals("1")) {
+			InternalLog.println(UNSAFE_CLASS + " Is diaabled because of the vm arg " + DISABLE_UNSAFE_ARG + " was set to \"" +System.getProperty(DISABLE_UNSAFE_ARG) + "\"");
+			return null;
+		}
 		try {
 			Class<?> unsafeClass = null;
 			try {
@@ -444,5 +549,11 @@ public class MiscUtil {
 		} catch (Exception e) {
 			throw new UnsupportedOperationException("Could not detect ByteBuffer.address offset", e);
 		}
+	}
+
+	public static void writeByteArray(File file, byte[] bytes) throws IOException {
+		FileOutputStream stream = new FileOutputStream(file);
+		stream.write(bytes);
+		stream.close();
 	}
 }

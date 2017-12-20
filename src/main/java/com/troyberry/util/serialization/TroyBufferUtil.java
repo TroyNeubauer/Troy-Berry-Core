@@ -37,12 +37,12 @@ public class TroyBufferUtil {
 	public static ZipFile readZipFile(TroyBuffer buffer) throws IOException {
 		long length = buffer.readLong();
 		File file = File.createTempFile("TempTroyBerryZipFile", Long.toString(System.nanoTime()));
-		buffer.readFileImpl(file, buffer.readPosition(), length);
+		buffer.writeToFile(file);
 		buffer.skipReader(length);
 		return new ZipFile(file);
 	}
 
-	public static int writeToBuffer(TroyBuffer buffer, InputStream stream) throws IOException {
+	public static int writeToBuffer(AbstractTroyBuffer buffer, InputStream stream) throws IOException {
 		int readTotal = 0, read;
 		byte[] bytes = BUFFERS.get();
 		while (stream.available() > 0) {
@@ -55,7 +55,7 @@ public class TroyBufferUtil {
 		return readTotal;
 	}
 
-	public static int feedToOuputStream(TroyBuffer buffer, OutputStream stream) throws IOException {
+	public static int feedToOuputStream(AbstractTroyBuffer buffer, OutputStream stream) throws IOException {
 		int written = 0;
 		byte[] bytes = BUFFERS.get();
 		for (long i = 0; i <= buffer.limit() / BUFFER_SIZE; i++) {

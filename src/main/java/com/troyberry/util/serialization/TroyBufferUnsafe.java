@@ -11,9 +11,10 @@ import com.troyberry.util.*;
 import sun.misc.Unsafe;
 
 @SuppressWarnings("restriction") // We use Unsafe and we want the compiler to shut up
-public final class TroyBufferUnsafe extends TroyBuffer {
+public final class TroyBufferUnsafe extends AbstractTroyBuffer {
 
-	protected static final Unsafe unsafe;
+	private static final Unsafe unsafe;
+
 	protected static final boolean BIG_ENDIAN = MiscUtil.isBigEndian();
 	private static final LinkedList<TroyBufferUnsafe> buffers = new LinkedList<TroyBufferUnsafe>();
 
@@ -31,11 +32,14 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 		if (MiscUtil.isUnsafeSupported()) {
 			unsafe = MiscUtil.getUnsafe();
 			LibraryUtils.load();
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				synchronized (buffers) {
-					InternalLog.println("Preparing to free all native TroyBuffers (" + buffers.size() + " in all)");
-					while (!buffers.isEmpty()) {
-						buffers.getFirst().free();
+			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+				public void run() {
+					synchronized (buffers) {
+						InternalLog.println("Preparing to free all native TroyBuffers (" + buffers.size() + " in all)");
+						while (!buffers.isEmpty()) {
+							buffers.removeFirst().free();
+						}
+						InternalLog.println("Finished freeing all native TroyBuffers");
 					}
 				}
 			}));
@@ -46,6 +50,7 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 
 	public static TroyBuffer createFromFile(File file) {
 		long size = file.length();
+
 		TroyBufferUnsafe buffer = new TroyBufferUnsafe(size, size);
 		if (!ncopyFileSubset(buffer.address, file.getPath(), size))
 			throw new Error("Unable to create buffer!");
@@ -54,7 +59,6 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 		}
 		return buffer;
 	}
-
 
 	public static TroyBuffer createFromAddress(long address, long size) {
 		return createFromAddress(address, size, size);
@@ -84,45 +88,34 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 		super(size, capacity);
 		this.address = address;
 	}
-	
-	public TroyBufferUnsafe(long capacity) {
-		this(0, capacity);
+
+	public TroyBufferUnsafe(long limit) {
+		this(0, limit);
 	}
 
-	public TroyBufferUnsafe(long size, long capacity) {
-		super(size, capacity);
-		this.address = unsafe.allocateMemory(capacity);// Allocate the requested size and store the pointer in address (like malloc in C)
+	public TroyBufferUnsafe(long size, long limit) {
+		super(size, limit);
+		this.address = unsafe.allocateMemory(limit);// Allocate the requested size and store the pointer in address (like malloc in C)
 		if (address == 0L) {
 			throw new OutOfMemoryError("Unable to create unsafe Troy Buffer! Out of memory!");
 		}
-		unsafe.setMemory(address, capacity, (byte) 0);// Set all allocated memory to 0 because it is uninitialized garbage
+		unsafe.setMemory(address, limit, (byte) 0);// Set all allocated memory to 0 because it is uninitialized garbage
 		synchronized (buffers) {
 			buffers.add(this);
 		}
 	}
 
-	public void clear() {
-		this.limit = 0;
-		this.positionRead = 0;
-		this.positionWrite = 0;
+	public void clearImpl() {
 		unsafe.setMemory(address, capacity, (byte) 0);
 	}
 
 	/**
 	 * Ensures that the writer
 	 */
-	public void ensureCapacity(long maxSize) {
-		if (maxSize >= capacity) {
-			long newCap = capacity;
-			do
-				newCap = newCap << 2;
-			while (newCap < capacity);
-
-			address = unsafe.reallocateMemory(address, newCap);// Re allocate the memory to a new size
-			unsafe.setMemory(address + capacity, newCap - capacity, (byte) 0);// Set the new memory
-			this.capacity = newCap;
-		}
-		this.limit = limit >= maxSize ? limit : maxSize;// Inlined version of Math.max
+	public void expand(long newCapacity) {
+		address = unsafe.reallocateMemory(address, newCapacity);// Re allocate the memory to a new capacity
+		unsafe.setMemory(address + capacity, newCapacity - capacity, (byte) 0);// Set the new memory
+		this.capacity = newCapacity;
 	}
 
 	public void set(long offset, long length, byte b) {
@@ -153,8 +146,7 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 
 		if (length == FIVE_BIT_LENGTH)
 			flags |= chars.length;
-		ensureCapacity(
-				positionWrite + 1 + (length == FOUR_BYTE_LENGTH ? 4 : (length == TWO_BYTE_LENGTH ? 2 : (length == ONE_BYTE_LENGTH ? 1 : 0))));
+		ensureCapacity(positionWrite + 1 + (length == FOUR_BYTE_LENGTH ? 4 : (length == TWO_BYTE_LENGTH ? 2 : (length == ONE_BYTE_LENGTH ? 1 : 0))));
 		unsafe.putByte(address + positionWrite++, flags);// Write flags
 		switch (length) {
 		case FIVE_BIT_LENGTH:
@@ -210,8 +202,7 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 
 		if (length == FIVE_BIT_LENGTH)
 			flags |= chars.length;
-		ensureCapacity(
-				positionWrite + 1 + (length == FOUR_BYTE_LENGTH ? 4 : (length == TWO_BYTE_LENGTH ? 2 : (length == ONE_BYTE_LENGTH ? 1 : 0))));
+		ensureCapacity(positionWrite + 1 + (length == FOUR_BYTE_LENGTH ? 4 : (length == TWO_BYTE_LENGTH ? 2 : (length == ONE_BYTE_LENGTH ? 1 : 0))));
 		unsafe.putByte(address + positionWrite++, flags);// Write flags
 		switch (length) {
 		case FIVE_BIT_LENGTH:
@@ -312,28 +303,15 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 
 	@Override
 	public void copyFrom(TroyBuffer src, long srcOffset, long destOffset, long bytes) {
-		System.out.println("in bytes " + bytes);
-		if (srcOffset + bytes > src.limit) {
-			System.out.println("changing");
-			bytes = src.limit - srcOffset;
-		}
-		System.out.println("after bytes " + bytes);
-		try {
-			throw new NullPointerException();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		System.out.println("about to go! src " + src + " this " + this + " src off " + srcOffset + " destoff " + destOffset + " bytes " + bytes);
 		ensureCapacity(destOffset + bytes);
-		System.out.println(this.address + " + " + destOffset + ", " + src.address() + " + " + srcOffset + ", " + bytes);
+		// System.out.println("about to copy this " + this +" src " + src);
+		// System.out.println("destOffset " + destOffset + " srcOffset " + srcOffset + " bytes " + bytes);
 		nmemcpy(this.address + destOffset, src.address() + srcOffset, bytes);
-		System.out.println("made it!!!\n\n\n\n\n\n");
 	}
 
 	@Override
 	public String toString() {
-		return "TroyBufferUnsafe [address=" + address + ", positionRead=" + positionRead + ", positionWrite=" + positionWrite + ", size=" + limit
-				+ ", capacity=" + capacity + "]";
+		return "TroyBufferUnsafe [address=" + address + ", positionRead=" + positionRead + ", positionWrite=" + positionWrite + ", size=" + limit + ", capacity=" + capacity + "]";
 	}
 
 	@Override
@@ -476,20 +454,6 @@ public final class TroyBufferUnsafe extends TroyBuffer {
 		this.clear();
 		ensureCapacity(readBuffer.length);
 		ncpyBytesFrom(address, readBuffer, 0, readBuffer.length);
-	}
-
-	@Override
-	protected void writeFileImpl(long index, File file, long offset, long length) throws IOException {
-		if (!ncopyFileChunk(address + index, file.getAbsolutePath(), offset, length))
-			throw new IOException(
-					"Unable to section of file index " + index + " to " + (index + length) + " to buffer index " + index + " file " + file);
-	}
-
-	@Override
-	protected void readFileImpl(File file, long index, long length) throws IOException {
-		if (!nwriteToFile(file.getAbsolutePath(), address + index, length))
-			throw new IOException(
-					"Unable to write file contained in this buffer from index " + index + " to " + (index + length) + " to dest file " + file);
 	}
 
 	@Override

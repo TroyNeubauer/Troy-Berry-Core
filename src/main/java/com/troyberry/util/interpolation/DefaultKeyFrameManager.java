@@ -38,7 +38,7 @@ public class DefaultKeyFrameManager extends KeyFrameMaster<Double> implements Tr
 	}
 
 	@Override
-	public void write(TroyBuffer writer) {
+	public void write(AbstractTroyBuffer writer) {
 		Set<Entry<Double, Double>> entrySet = pairs.entrySet();
 		writer.writeInt(entrySet.size());
 		writer.writeInt(type.getId());
@@ -50,7 +50,7 @@ public class DefaultKeyFrameManager extends KeyFrameMaster<Double> implements Tr
 	
 	
 
-	public void read(TroyBuffer reader) {
+	public void read(AbstractTroyBuffer reader) {
 		int entries = reader.readInt();
 		this.type = InterpolationType.getType(reader.readInt());
 		for(int i = 0; i < entries; i++) {

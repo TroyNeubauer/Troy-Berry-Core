@@ -60,7 +60,7 @@ public class PrimitiveUtils {
 	}
 
 	public static short signedIntToUnsignedShort(int s) {
-		return (short) ((short) s & 0x0000FFFF);// Get rid of sign byte
+		return (short) (s & 0x0000FFFF);// Get rid of sign byte
 	}
 
 	public static String unsignedShortToString(short s) {

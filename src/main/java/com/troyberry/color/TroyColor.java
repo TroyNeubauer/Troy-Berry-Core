@@ -6,7 +6,7 @@ import com.troyberry.math.Maths;
 import com.troyberry.math.Vector3f;
 import com.troyberry.math.Vector4f;
 import com.troyberry.util.interpolation.*;
-import com.troyberry.util.serialization.TroyBuffer;
+import com.troyberry.util.serialization.AbstractTroyBuffer;
 import com.troyberry.util.serialization.TroySerializable;
 
 /**
@@ -175,13 +175,13 @@ public class TroyColor implements Interpolatable<TroyColor>, TroySerializable {
 	}
 
 	@Override
-	public void read(TroyBuffer buffer) {
+	public void read(AbstractTroyBuffer buffer) {
 		this.format = RGBColorFormat.getFormat(buffer.readByte());
 		this.color = buffer.readInt();
 	}
 
 	@Override
-	public void write(TroyBuffer buffer) {
+	public void write(AbstractTroyBuffer buffer) {
 		buffer.writeByte((byte) format.ordinal());
 		buffer.writeInt(color);
 	}

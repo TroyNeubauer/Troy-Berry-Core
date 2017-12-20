@@ -10,6 +10,13 @@ public class Version {
 		this.patch = patch;
 	}
 
+	public Version(int major, int minor, int patch) {
+		assert major <= Byte.MAX_VALUE && minor <= Byte.MAX_VALUE && patch <= Byte.MAX_VALUE;
+		this.major = (byte) major;
+		this.minor = (byte) minor;
+		this.patch = (byte) patch;
+	}
+
 	public byte getMajor() {
 		return major;
 	}

@@ -5,9 +5,9 @@ import java.util.Arrays;
 
 public class BufferOutputStream extends OutputStream {
 
-	private TroyBuffer buffer;
+	private AbstractTroyBuffer buffer;
 
-	public BufferOutputStream(TroyBuffer buffer) {
+	public BufferOutputStream(AbstractTroyBuffer buffer) {
 		this.buffer = buffer;
 	}
 
