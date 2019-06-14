@@ -1,5 +1,7 @@
 package com.troyberry.util.serialization;
 
+import com.troyberry.internal.LibraryUtils;
+
 /**
  * Contains all the native methods used in direct TroyBuffer's {@link TroyBufferUnsafe}
  * @author Troy Neubauer
@@ -7,6 +9,10 @@ package com.troyberry.util.serialization;
  */
 public class NativeTroyBufferUtil {
 
+	static {
+		LibraryUtils.load();
+	}
+	
 	/**
 	 * Copies n bytes from the source address to the destination address<br>
 	 * Both {@code dest} and {@code src} pointers are <b>NOT</b> checked for validity! If they are null or point to 

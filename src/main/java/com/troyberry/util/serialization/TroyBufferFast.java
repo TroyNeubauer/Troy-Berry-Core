@@ -63,7 +63,6 @@ public class TroyBufferFast implements TroyBuffer {
 			resize(positionWrite + Byte.BYTES);
 		}
 		buffer[positionWrite++] = b;
-		limit = Math.max(limit, positionWrite);
 	}
 
 	@Override
@@ -72,8 +71,9 @@ public class TroyBufferFast implements TroyBuffer {
 		if (intIndex + Byte.BYTES > capacity) {
 			resize(intIndex + Byte.BYTES);
 		}
-		buffer[intIndex] = value;
-		limit = Math.max(limit, intIndex);
+		buffer[intIndex++] = value;
+		if (intIndex > limit)
+			limit = intIndex;
 	}
 
 	@Override
@@ -89,24 +89,25 @@ public class TroyBufferFast implements TroyBuffer {
 			buffer[positionWrite++] = (byte) value;
 			buffer[positionWrite++] = (byte) (value >>> 8);
 		}
-		limit = (limit > positionWrite) ? limit : positionWrite;
 	}
 
 	@Override
 	public final void writeChar(long index, char value) {
-		final int intIndex = (int) index;
+		int intIndex = (int) index;
 		if (intIndex + Character.BYTES > capacity) {
 			resize(intIndex + Character.BYTES);
 		}
 		final byte[] buffer = this.buffer;
 		if (bigWrite) {
-			buffer[intIndex] = (byte) (value >>> 8);
-			buffer[intIndex + 1] = (byte) value;
+			buffer[intIndex++] = (byte) (value >>> 8);
+			buffer[intIndex++] = (byte) value;
 		} else {
-			buffer[intIndex] = (byte) value;
-			buffer[intIndex + 1] = (byte) (value >>> 8);
+			buffer[intIndex++] = (byte) value;
+			buffer[intIndex++] = (byte) (value >>> 8);
 		}
-		limit = (limit > positionWrite) ? limit : positionWrite;
+		if (intIndex > limit)
+			limit = intIndex;
+
 	}
 
 	@Override
@@ -122,24 +123,24 @@ public class TroyBufferFast implements TroyBuffer {
 			buffer[positionWrite++] = (byte) value;
 			buffer[positionWrite++] = (byte) (value >>> 8);
 		}
-		limit = (limit > positionWrite) ? limit : positionWrite;
 	}
 
 	@Override
 	public final void writeShort(long index, short value) {
-		final int intIndex = (int) index;
+		int intIndex = (int) index;
 		if (intIndex + Short.BYTES > capacity) {
 			resize(intIndex + Short.BYTES);
 		}
 		final byte[] buffer = this.buffer;
 		if (bigWrite) {
-			buffer[intIndex] = (byte) (value >>> 8);
-			buffer[intIndex + 1] = (byte) value;
+			buffer[intIndex++] = (byte) (value >>> 8);
+			buffer[intIndex++] = (byte) value;
 		} else {
-			buffer[intIndex] = (byte) value;
-			buffer[intIndex + 1] = (byte) (value >>> 8);
+			buffer[intIndex++] = (byte) value;
+			buffer[intIndex++] = (byte) (value >>> 8);
 		}
-		limit = (limit > positionWrite) ? limit : positionWrite;
+		if (intIndex > limit)
+			limit = intIndex;
 	}
 
 	@Override
@@ -155,24 +156,24 @@ public class TroyBufferFast implements TroyBuffer {
 			buffer[positionWrite++] = (byte) (value & 0xFF);
 			buffer[positionWrite++] = (byte) ((value & 0xFF) >>> 8);
 		}
-		limit = (limit > positionWrite) ? limit : positionWrite;
 	}
 
 	@Override
 	public final void writeUnsignedShort(long index, int value) {
-		final int intIndex = (int) index;
+		int intIndex = (int) index;
 		if (intIndex + Short.BYTES > capacity) {
 			resize(intIndex + Short.BYTES);
 		}
 		final byte[] buffer = this.buffer;
 		if (bigWrite) {
-			buffer[intIndex] = (byte) ((value & 0xFF) >>> 8);
-			buffer[intIndex + 1] = (byte) (value & 0xFF);
+			buffer[intIndex++] = (byte) ((value & 0xFF) >>> 8);
+			buffer[intIndex++] = (byte) (value & 0xFF);
 		} else {
-			buffer[intIndex] = (byte) (value & 0xFF);
-			buffer[intIndex + 1] = (byte) ((value & 0xFF) >>> 8);
+			buffer[intIndex++] = (byte) (value & 0xFF);
+			buffer[intIndex++] = (byte) ((value & 0xFF) >>> 8);
 		}
-		limit = (limit > positionWrite) ? limit : positionWrite;
+		if (intIndex > limit)
+			limit = intIndex;
 	}
 
 	@Override
@@ -192,28 +193,28 @@ public class TroyBufferFast implements TroyBuffer {
 			buffer[positionWrite++] = (byte) (value >>> 16);
 			buffer[positionWrite++] = (byte) (value >>> 24);
 		}
-		limit = (limit > positionWrite) ? limit : positionWrite;
 	}
 
 	@Override
 	public final void writeInt(long index, int value) {
-		final int intIndex = (int) index;
+		int intIndex = (int) index;
 		if (intIndex + Integer.BYTES > capacity) {
 			resize(intIndex + Integer.BYTES);
 		}
 		final byte[] buffer = this.buffer;
 		if (bigWrite) {
-			buffer[intIndex] = (byte) (value >>> 24);
-			buffer[intIndex + 1] = (byte) (value >>> 16);
-			buffer[intIndex + 2] = (byte) (value >>> 8);
-			buffer[intIndex + 3] = (byte) value;
+			buffer[intIndex++] = (byte) (value >>> 24);
+			buffer[intIndex++] = (byte) (value >>> 16);
+			buffer[intIndex++] = (byte) (value >>> 8);
+			buffer[intIndex++] = (byte) value;
 		} else {
-			buffer[intIndex] = (byte) value;
-			buffer[intIndex + 1] = (byte) (value >>> 8);
-			buffer[intIndex + 2] = (byte) (value >>> 16);
-			buffer[intIndex + 3] = (byte) (value >>> 24);
+			buffer[intIndex++] = (byte) value;
+			buffer[intIndex++] = (byte) (value >>> 8);
+			buffer[intIndex++] = (byte) (value >>> 16);
+			buffer[intIndex++] = (byte) (value >>> 24);
 		}
-		limit = (limit > positionWrite) ? limit : positionWrite;
+		if (intIndex > limit)
+			limit = intIndex;
 	}
 
 	@Override
@@ -241,36 +242,36 @@ public class TroyBufferFast implements TroyBuffer {
 			buffer[positionWrite++] = (byte) (value >>> 48);
 			buffer[positionWrite++] = (byte) (value >>> 56);
 		}
-		limit = (limit > positionWrite) ? limit : positionWrite;
 	}
 
 	@Override
 	public final void writeLong(long index, long value) {
-		final int intIndex = (int) index;
+		int intIndex = (int) index;
 		if (intIndex + Long.BYTES > capacity) {
 			resize(intIndex + Long.BYTES);
 		}
 		final byte[] buffer = this.buffer;
 		if (bigWrite) {
-			buffer[intIndex] = (byte) (value >>> 56);
-			buffer[intIndex + 1] = (byte) (value >>> 48);
-			buffer[intIndex + 2] = (byte) (value >>> 40);
-			buffer[intIndex + 3] = (byte) (value >>> 32);
-			buffer[intIndex + 4] = (byte) (value >>> 24);
-			buffer[intIndex + 5] = (byte) (value >>> 16);
-			buffer[intIndex + 6] = (byte) (value >>> 8);
-			buffer[intIndex + 7] = (byte) value;
+			buffer[intIndex++] = (byte) (value >>> 56);
+			buffer[intIndex++] = (byte) (value >>> 48);
+			buffer[intIndex++] = (byte) (value >>> 40);
+			buffer[intIndex++] = (byte) (value >>> 32);
+			buffer[intIndex++] = (byte) (value >>> 24);
+			buffer[intIndex++] = (byte) (value >>> 16);
+			buffer[intIndex++] = (byte) (value >>> 8);
+			buffer[intIndex++] = (byte) value;
 		} else {
-			buffer[intIndex] = (byte) value;
-			buffer[intIndex + 1] = (byte) (value >>> 8);
-			buffer[intIndex + 2] = (byte) (value >>> 16);
-			buffer[intIndex + 3] = (byte) (value >>> 24);
-			buffer[intIndex + 4] = (byte) (value >>> 32);
-			buffer[intIndex + 5] = (byte) (value >>> 40);
-			buffer[intIndex + 6] = (byte) (value >>> 48);
-			buffer[intIndex + 7] = (byte) (value >>> 56);
+			buffer[intIndex++] = (byte) value;
+			buffer[intIndex++] = (byte) (value >>> 8);
+			buffer[intIndex++] = (byte) (value >>> 16);
+			buffer[intIndex++] = (byte) (value >>> 24);
+			buffer[intIndex++] = (byte) (value >>> 32);
+			buffer[intIndex++] = (byte) (value >>> 40);
+			buffer[intIndex++] = (byte) (value >>> 48);
+			buffer[intIndex++] = (byte) (value >>> 56);
 		}
-		limit = (limit > positionWrite) ? limit : positionWrite;
+		if (intIndex > limit)
+			limit = intIndex;
 	}
 
 	@Override
@@ -617,13 +618,17 @@ public class TroyBufferFast implements TroyBuffer {
 
 	@Override
 	public long limit() {
-
+		fixLimit();
 		return limit;
 	}
 
 	@Override
 	public void limit(long newLimit) {
 		this.limit = (int) newLimit;
+	}
+
+	private void fixLimit() {
+		limit = Math.max(limit, positionWrite);
 	}
 
 	@Override
@@ -633,6 +638,7 @@ public class TroyBufferFast implements TroyBuffer {
 
 	@Override
 	public final void writeToFile(File file) throws IOException {
+		fixLimit();
 		FileOutputStream stream = new FileOutputStream(file);
 		stream.write(buffer, 0, limit);
 		stream.close();
@@ -640,11 +646,13 @@ public class TroyBufferFast implements TroyBuffer {
 
 	@Override
 	public byte[] getBytes() {
+		fixLimit();
 		return getBytes(0, limit);
 	}
 
 	@Override
 	public byte[] getBytes(long offset, int length) {
+		fixLimit();
 		if (offset + length > limit)
 			throw new IndexOutOfBoundsException("length is greater than the limit! Length " + length + " limit " + limit);
 		return Arrays.copyOfRange(buffer, (int) offset, (int) (offset + length));
@@ -667,11 +675,13 @@ public class TroyBufferFast implements TroyBuffer {
 
 	@Override
 	public long remainingRead() {
+		fixLimit();
 		return limit - positionRead;
 	}
 
 	@Override
 	public boolean canRead() {
+		fixLimit();
 		return positionRead < limit;
 	}
 

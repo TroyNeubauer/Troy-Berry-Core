@@ -66,9 +66,15 @@ public class LibraryUtils {
 			InternalLog.println("Attempting to load file " + value);
 			try {
 				System.load(value);
-				InternalLog.println("Successfully loaded native lib from file: " + value +"!");
+				InternalLog.println("Successfully loaded native lib from file: " + value + "!");
 			} catch (Exception e) {
-				InternalLog.println("Unable to load native lib from file: " + value +" Error " + MiscUtil.getStackTrace(e));
+				InternalLog.println("Unable to load native lib from file: " + value + " Error " + MiscUtil.getStackTrace(e));
+				InternalLog.println("Re-trying with java streams");
+				try {
+					loadFromStream(new FileInputStream(new File(value)), "File-JavaIO");
+				} catch (FileNotFoundException e1) {
+					InternalLog.println("Unable to load native lib from file: " + value + " using java io. Error " + MiscUtil.getStackTrace(e));
+				}
 			}
 		}
 	}

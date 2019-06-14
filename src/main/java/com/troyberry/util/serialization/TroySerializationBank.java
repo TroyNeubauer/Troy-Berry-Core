@@ -25,7 +25,7 @@ public class TroySerializationBank {
 		map.put(serializer.getType(), serializer);
 	}
 
-	static <T> BaseSerializer<T> lookUp(Class<T> clazz) {
+	public static <T> BaseSerializer<T> lookUp(Class<T> clazz) {
 		BaseSerializer<T> fromMap = (BaseSerializer<T>) map.get(clazz);
 		if (fromMap != null) {
 			return fromMap;
@@ -127,7 +127,6 @@ public class TroySerializationBank {
 
 	private static class ClassAnalyzer extends ClassVisitor {
 		private static final String TROY_BUFFER_CLASS_TYPE = getInternalName(TroyBuffer.class);
-		private static final String TROY_SERIALIZATION_FILE_CLASS_TYPE = getInternalName(TroyBuffer.class);
 
 		private MethodVisitor mv;
 		private boolean read;

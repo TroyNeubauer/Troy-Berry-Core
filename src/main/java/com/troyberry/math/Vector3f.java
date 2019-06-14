@@ -125,14 +125,6 @@ public class Vector3f implements Interpolatable<Vector3f> {
 		return vec;
 	}
 
-	/**
-	 * Returns weather or not all of the components of this vector are rational
-	 * @return Weather or not all of the components of this vector are rational
-	 */
-	public boolean isRational() {
-		return (Float.isFinite(x) && Float.isFinite(y) && Float.isFinite(z) && !(Float.isNaN(x) || Float.isNaN(y) || Float.isNaN(z)));
-	}
-
 	public static Vector3f absoluteValue(Vector3f first) {
 		return new Vector3f(Math.abs(first.x), Math.abs(first.y), Math.abs(first.z));
 	}

@@ -89,11 +89,11 @@ public class StringFormatter {
 
 	public static String toHexString(long b) {
 		return "" + DIGITS[(int) (b >> 60 & 0x0F)] + DIGITS[(int) (b >> 56 & 0x0F)] + DIGITS[(int) (b >> 52 & 0x0F)]
-				+ DIGITS[(int) (b >> 48 & 0x0F)] + DIGITS[(int) (b >> 44 & 0x0F)] + DIGITS[(int) (b >> 40 & 0x0F)]
-				+ DIGITS[(int) (b >> 36 & 0x0F)] + DIGITS[(int) (b >> 32 & 0x0F)] + DIGITS[(int) (b >> 28 & 0x0F)]
-				+ DIGITS[(int) (b >> 24 & 0x0F)] + DIGITS[(int) (b >> 20 & 0x0F)] + DIGITS[(int) (b >> 16 & 0x0F)]
-				+ DIGITS[(int) (b >> 12 & 0x0F)] + DIGITS[(int) (b >> 8 & 0x0F)] + DIGITS[(int) (b >> 4 & 0x0F)]
-				+ DIGITS[(int) (b >> 0 & 0x0F)];
+                  + DIGITS[(int) (b >> 48 & 0x0F)] + DIGITS[(int) (b >> 44 & 0x0F)] + DIGITS[(int) (b >> 40 & 0x0F)]
+                  + DIGITS[(int) (b >> 36 & 0x0F)] + DIGITS[(int) (b >> 32 & 0x0F)] + DIGITS[(int) (b >> 28 & 0x0F)]
+                  + DIGITS[(int) (b >> 24 & 0x0F)] + DIGITS[(int) (b >> 20 & 0x0F)] + DIGITS[(int) (b >> 16 & 0x0F)]
+                  + DIGITS[(int) (b >> 12 & 0x0F)] + DIGITS[(int) (b >> 8 & 0x0F)] + DIGITS[(int) (b >> 4 & 0x0F)]
+                  + DIGITS[(int) (b >> 0 & 0x0F)];
 	}
 
 	public static String toHexString(float b) {
@@ -164,6 +164,10 @@ public class StringFormatter {
 			result += ((c >> loopCtr) & 0b1);
 		}
 		return result;
+	}
+	
+	public static String toBinaryString(byte[] bytes) {
+		return ArrayUtil.toBinaryString(bytes);
 	}
 	
 	/**

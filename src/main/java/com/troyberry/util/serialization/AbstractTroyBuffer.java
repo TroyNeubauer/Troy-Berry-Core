@@ -6,11 +6,10 @@ import com.troyberry.util.*;
 
 import sun.misc.Unsafe;
 
-@SuppressWarnings("restriction") // We use Unsafe and we want the compiler to shut up
 public abstract class AbstractTroyBuffer implements TroyBuffer {
 
 	// Unsafe is used to allocate instances of classes
-	private static final Unsafe unsafe = MiscUtil.getUnsafe();
+	static final Unsafe unsafe = MiscUtil.getUnsafe();
 
 	protected long positionRead, positionWrite, limit, capacity;
 	protected boolean flipRead = ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN, flipWrite = ByteOrder.nativeOrder() != ByteOrder.BIG_ENDIAN;
